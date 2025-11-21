@@ -1,0 +1,37 @@
+[
+    {
+        "name": "General physician",
+        "image": "general_physician",
+        "description": "General physicians are medical doctors who diagnose and treat a wide range of common illnesses and conditions. They provide primary care services, including health assessments, preventive care, and management of chronic diseases."
+    },
+    {
+        "name": "Cardiologist",
+        "image": "cardiologist",
+        "description": "Cardiologists specialize in diagnosing and treating heart and cardiovascular system disorders. They manage conditions such as heart disease, hypertension, and arrhythmias, and perform procedures like angioplasty and cardiac catheterization."
+    },
+    {
+        "name": "Dermatologist",
+        "image": "dermatologist",
+        "description": "Dermatologists focus on the diagnosis and treatment of skin, hair, and nail conditions. They treat a variety of issues, including acne, eczema, psoriasis, skin infections, and skin cancer."
+    },
+    {
+        "name": "Pediatrician",
+        "image": "pediatrician",
+        "description": "Pediatricians provide medical care for infants, children, and adolescents. They monitor growth and development, administer vaccinations, and treat common childhood illnesses and injuries."
+    },
+    {
+        "name": "Orthopedic Surgeon",
+        "image": "orthopedic_surgeon",
+        "description": "Orthopedic surgeons specialize in the diagnosis and surgical treatment of musculoskeletal system disorders. They treat conditions such as fractures, joint problems, sports injuries, and spinal disorders."
+    },
+    {
+        "name": "Neurologist",
+        "image": "neurologist",
+        "description": "Neurologists diagnose and treat disorders of the nervous system, including the brain, spinal cord, and peripheral nerves. They manage conditions such as epilepsy, stroke, multiple sclerosis, and Parkinson's disease."
+    },
+    {
+        "name": "Psychiatrist",
+        "image": "psychiatrist",
+        "description": "Psychiatrists are medical doctors who specialize in mental health. They diagnose and treat mental illnesses, including depression, anxiety, bipolar disorder, and schizophrenia, often using a combination of medication and psychotherapy."
+    }
+]

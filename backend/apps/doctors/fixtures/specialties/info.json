@@ -1,0 +1,38 @@
+[
+  {
+    "name": "General physician",
+    "slug": "general-physician",
+    "image": "general-physician.svg",
+    "description": "General physicians are medical doctors who diagnose and treat a wide range of common illnesses and conditions. They provide primary care services, including health assessments, preventive care, and management of chronic diseases."
+  },
+  {
+    "name": "Dermatologist",
+    "slug": "dermatologist",
+    "image": "dermatologist.svg",
+    "description": "Dermatologists focus on the diagnosis and treatment of skin, hair, and nail conditions. They treat a variety of issues, including acne, eczema, psoriasis, skin infections, and skin cancer."
+  },
+  {
+    "name": "Pediatrician",
+    "slug": "pediatrician",
+    "image": "pediatrician.svg",
+    "description": "Pediatricians provide medical care for infants, children, and adolescents. They monitor growth and development, administer vaccinations, and treat common childhood illnesses and injuries."
+  },
+  {
+    "name": "Neurologist",
+    "slug": "neurologist",
+    "image": "neurologist.svg",
+    "description": "Neurologists diagnose and treat disorders of the nervous system, including the brain, spinal cord, and peripheral nerves. They manage conditions such as epilepsy, stroke, multiple sclerosis, and Parkinson's disease."
+  },
+  {
+    "name": "Gynecologist",
+    "slug": "gynecologist",
+    "image": "gynecologist.svg",
+    "description": "Gynecologists specialize in women's reproductive health, including the diagnosis and treatment of conditions related to the female reproductive system. They provide care for issues such as menstrual disorders, pregnancy, and menopause."
+  },
+  {
+    "name": "Gastroenterologist",
+    "slug": "gastroenterologist",
+    "image": "gastroenterologist.svg",
+    "description": "Gastroenterologists focus on the diagnosis and treatment of digestive system disorders. They manage conditions such as acid reflux, irritable bowel syndrome (IBS), Crohn's disease, and liver diseases."
+  }
+]

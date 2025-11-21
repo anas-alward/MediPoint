@@ -1,0 +1,36 @@
+
+
+services:
+  api:
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+      - RUN_MIGRATIONS=true
+    command: "python manage.py runserver 0.0.0.0:8000" 
+    volumes:
+      - ../backend:/app
+    ports:
+      - "8000:8000"
+    
+  email:
+    image: axllent/mailpit
+    ports:
+      - "1025:1025"   # SMTP port
+      - "8025:8025"   # Web interface port
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=1
+      - MP_SMTP_AUTH_ALLOW_INSECURE=1
+    restart: always  
+
+  workers:
+    volumes:
+      - ../backend:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+      - RUN_MIGRATIONS=false
+
+
+  scheduler:
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+      - RUN_MIGRATIONS=false
+

@@ -1,0 +1,58 @@
+
+name: medipoint
+services:
+  api:
+    build:
+      context: ../backend
+    env_file:
+      - ../backend/.env
+    
+    depends_on:
+      - db
+      - cache
+
+  db:
+    image: postgres:15
+
+    
+
+    env_file:
+      - ../backend/.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  cache:
+    image: redis:7
+    ports:
+      - "6379:6379"
+  
+  
+  workers:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    command: celery -A config worker --loglevel=info
+    depends_on:
+      - api
+      - cache
+    environment:
+      - RUN_MIGRATIONS=false
+    env_file:
+      - ../backend/.env
+
+  # Celery Beat
+  scheduler:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    command: celery -A config beat --loglevel=info
+    environment:
+      - RUN_MIGRATIONS=false
+    depends_on:
+      - api
+      - cache
+    env_file:
+      - ../backend/.env
+
+volumes:
+  pgdata:
