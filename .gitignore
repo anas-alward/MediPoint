@@ -104,3 +104,5 @@ medipoint_db/*
 .env.development
 dist/*
 node_modules/*
+
+.scripts/*

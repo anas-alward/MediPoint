@@ -1,15 +1,17 @@
 from django.urls import path, include
-from doctors.urls import doctor_routes
-from patients.urls import patient_routes
-from appointments.urls import appointment_routes
-from chatbot.urls import chatbot_routes
+from apps.doctors.urls import doctor_routes
+from apps.patients.urls import patient_routes
+from apps.appointments.urls import appointment_routes
+from apps.chatbot.urls import chatbot_routes
+from apps.reviews.urls import reviews_routes
+
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 urlpatterns = [
-    path('auth/', include('auth.urls')),
-] + doctor_routes + patient_routes + appointment_routes + chatbot_routes
+    path('auth/', include('apps.authn.urls')),
+] + doctor_routes + patient_routes + appointment_routes + chatbot_routes + reviews_routes
 
 
 # Schema view for Swagger/OpenAPI
@@ -23,7 +25,7 @@ schema_view = get_schema_view(
         license=openapi.License(name="BSD License"),
     ),
     public=True,
-    permission_classes=(permissions.IsAdminUser,)
+    # permission_classes=(permissions.IsAdminUser,)
 )
 
 urlpatterns += [

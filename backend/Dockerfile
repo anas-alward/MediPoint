@@ -17,7 +17,6 @@ RUN apt update && apt install -y --no-install-recommends \
     libblas-dev \
     liblapack-dev \
     netcat-traditional \
-    libatlas-base-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
