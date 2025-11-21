@@ -3,10 +3,13 @@ from .views import (
     ScheduleViewSet,
     WorkingHoursViewSet,
     SpecialtyListAPIView,
+    DoctorInitAPIView
 )
 from rest_framework_nested.routers import NestedSimpleRouter
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
+from apps.reviews.views import ReviewsViewSet
+
 
 router = DefaultRouter()
 
@@ -18,8 +21,12 @@ nested_router = NestedSimpleRouter(router, r"doctors", lookup="doctor")
 nested_router.register(
     r"working-hours", WorkingHoursViewSet, basename="doctor-working-hours"
 )
+nested_router.register(
+    r"reviews", ReviewsViewSet, basename="doctor-reviews"
+)
 
 doctor_routes = [
+    path("doctors/init/", DoctorInitAPIView.as_view()),
     path("", include(router.urls)),
     path("", include(nested_router.urls)),
     path("specialties/", SpecialtyListAPIView.as_view()),

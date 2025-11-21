@@ -7,6 +7,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import NotFound
 
+from apps.doctors.models import Doctor
+
 class ReviewsViewSet(ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
@@ -14,23 +16,21 @@ class ReviewsViewSet(ModelViewSet):
 
     
     def get_queryset(self):
-        if self.kwargs.get("appointment_pk"):                
-            return super().get_queryset().filter(appointment_id=self.kwargs.get("appointment_pk"))
+        if self.kwargs.get("doctor_pk"):                
+            return super().get_queryset().filter(doctor_id=self.kwargs.get("doctor_pk"))
             
             
         return super().get_queryset()
 
     def perform_create(self, serializer):
-        appointment_pk = self.kwargs.get("appointment_pk")
-        if appointment_pk and appointment_pk.isdigit():
+        doctor_pk = self.kwargs.get("doctor_pk")
+        if doctor_pk:
             try:
-                appointment = Review.objects.get(pk=appointment_pk)
-            except Review.DoesNotExist:
+                doctor = Doctor.objects.get(pk=doctor_pk)
+            except Doctor.DoesNotExist:
                 raise NotFound("Appointment not found.")
 
-            if appointment.patient != self.request.user.patient:
-                raise PermissionDenied("You can only review your own appointments.")
-            serializer.save(appointment_id=appointment, patient=self.request.user.patient)
+            serializer.save(doctor=doctor, patient=self.request.user.patient)
         else:
             raise ValueError("Appointment ID is required to create a review.")
 

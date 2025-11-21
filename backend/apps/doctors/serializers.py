@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Doctor, Specialty, Schedule, WorkingHours
 from apps.users.serializers import UserSerializer
-
+from apps.reviews.serializers import ReviewSerializer
 
 class WorkingHoursSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,12 +28,13 @@ class SpecialtySerializer(serializers.ModelSerializer):
 class DoctorSerializer(serializers.ModelSerializer):
     working_hours = WorkingHoursSerializer(read_only=True, many=True)
     user = UserSerializer(many=False)
-
+    reviews = ReviewSerializer(many=True)
     class Meta:
         model = Doctor
         fields = [
             "user",
             "working_hours",
+            "reviews",
             "fees",
             "user",
             "experience",

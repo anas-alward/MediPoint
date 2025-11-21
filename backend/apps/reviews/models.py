@@ -1,5 +1,6 @@
 from django.db import models
 from apps.appointments.models import Appointment
+from apps.doctors.models import Doctor
 from apps.core.models import AuditableModel
 from apps.patients.models import Patient
 from django.contrib.auth import get_user_model
@@ -12,9 +13,10 @@ class Review(AuditableModel):
         THREE = 3, "3 Stars"
         FOUR = 4, "4 Stars"
         FIVE = 5, "5 Stars"
-    
-    appointment = models.OneToOneField(
-        Appointment, on_delete=models.CASCADE, related_name="review")
+
+    doctor = models.ForeignKey(
+        Doctor, on_delete=models.CASCADE, related_name="reviews", blank=True, null=True
+    )
     patient = models.ForeignKey(
         Patient, on_delete=models.CASCADE, related_name="reviews"
     )
@@ -22,10 +24,10 @@ class Review(AuditableModel):
     content = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"Review by {self.patient.username} for {self.doctor.user.get_full_name()}"
+        return f"Review by {self.patient} for {self.doctor}"
 
     class Meta:
-        unique_together = ('appointment', 'patient')
+        unique_together = ('doctor', 'patient')
 
 
 class Comment(AuditableModel):
@@ -40,6 +42,6 @@ class Comment(AuditableModel):
     
     
     def __str__(self):
-        return f"Comment by {self.user.get_full_name()} on Review {self.review.id}"
+        return f"Comment by {self.user} on Review {self.review.id}"
     
     

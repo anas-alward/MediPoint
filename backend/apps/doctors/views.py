@@ -123,12 +123,23 @@ class WorkingHoursViewSet(viewsets.ModelViewSet):
             
         return qs
 
-class InitView(views.APIView):
-    permission_classes = [IsAuthenticated]
+class DoctorInitAPIView(views.APIView):
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        doctors = Doctor.objects.all()
+        doctors = Doctor.objects.select_related('specialty', 'user').prefetch_related('reviews','reviews__comments', 'working_hours' )
         specialties = Specialty.objects.all()
-        reviews = Review.objects.all()
+        # Initialize the response data
+        # 
+        doctors_data  = DoctorSerializer(doctors, many=True).data
+        specialties_data = SpecialtySerializer(specialties, many=True).data
+        
+        response_data = {
+            'doctors': doctors_data,
+            'specialties': specialties_data,
+        }
+        
+        return Response(response_data)
+        
         
         

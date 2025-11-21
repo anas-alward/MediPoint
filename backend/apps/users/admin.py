@@ -5,7 +5,7 @@ from django.contrib.auth.hashers import make_password
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['email', 'full_name', 'gender']
+    list_display = ['id', 'email', 'full_name', 'gender']
     list_filter = ['role']
     search_fields = ['email','full_name']
     
