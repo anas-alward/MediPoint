@@ -9,6 +9,7 @@ from icecream import ic
 # Dictionary to store chat sessions in memory
 chat_sessions = {}
 
+MODEL = "gemini-3-flash-preview"
 
 class MedicalChatBot:
     def __init__(self, chatbot_session_id):
@@ -49,7 +50,7 @@ class MedicalChatBot:
         self.messages.append(HumanMessage(content=user_input))
 
         # Generate AI response
-        model = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.5)
+        model = ChatGoogleGenerativeAI(model=MODEL, temperature=0.5)
         response = model.invoke(self.messages)
         response_text = response.content
 
@@ -84,7 +85,7 @@ class MedicalChatBot:
             return "no-specialty"
 
         # Ask AI to match the specialty
-        model = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.3)
+        model = ChatGoogleGenerativeAI(model=MODEL, temperature=0.3)
         matching_prompt = (
             f"The identified specialty is '{specialty}'. Here is a list of available specialties: {available_specialties}. "
             "Which specialty from the list best matches the identified specialty? "

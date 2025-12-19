@@ -7,13 +7,13 @@ import environ
 env = environ.Env()
 
 # Determine the environment (e.g., "production" or "development")
-ENVIRONMENT = os.getenv('DJANGO_SETTINGS_MODULE', 'local')
+ENVIRONMENT = os.getenv("DJANGO_SETTINGS_MODULE", "local")
 
 # Load the correct .env file
-if ENVIRONMENT == 'config.settings.production':
-    env.read_env('.env.production')
+if ENVIRONMENT == "config.settings.production":
+    env.read_env(".env.production")
 else:
-    env.read_env('.env')
+    env.read_env(".env")
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-rg3+1p3#y^cw46n2__9t%@80gj3b4$xv($$%veutm2)31^xhwl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['164.92.161.163', 'api', 'localhost']
+ALLOWED_HOSTS = ["164.92.161.163", "api", "localhost"]
 
 LOCAL_APPS = [
     "apps.authn",
@@ -54,13 +54,13 @@ INSTALLED_APPS = [
     "django_celery_beat",
     "anymail",
     "dbbackup",
-    
-] + LOCAL_APPS 
+] + LOCAL_APPS
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "apps.authn.middlewares.JWTSessionMiddleware",  # Custom JWT Session Middleware
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -75,7 +75,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates' ],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -141,7 +141,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
@@ -167,10 +167,8 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",  # Ensure webhooks are not blocked
     ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
-
-
-    'DEFAULT_PAGINATION_CLASS': 'apps.users.pagination.CustomPageNumberPagination',
-    'PAGE_SIZE_QUERY_PARAM': 'page_size',  # Allows dynamic page size from frontend
+    "DEFAULT_PAGINATION_CLASS": "apps.users.pagination.CustomPageNumberPagination",
+    "PAGE_SIZE_QUERY_PARAM": "page_size",  # Allows dynamic page size from frontend
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Ensure session data is stored
@@ -212,7 +210,6 @@ JAZZMIN_SETTINGS = {
         {"model": "auth.User"},
         {"app": "books"},
     ],
-    
     "usermenu_links": [
         {
             "name": "Support",
@@ -221,8 +218,6 @@ JAZZMIN_SETTINGS = {
         },
         {"model": "auth.user"},
     ],
-
-
     "show_sidebar": True,
     "navigation_expanded": True,
     "hide_apps": [],
@@ -311,14 +306,15 @@ JAZZMIN_UI_TWEAKS = {
     },
 }
 
-DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
-
-
+DBBACKUP_STORAGE = "django.core.files.storage.FileSystemStorage"
 
 
 # For the protected subfolder
-PROTECTED_SUBPATH = 'patients/files'
+PROTECTED_SUBPATH = "patients/files"
 PROTECTED_MEDIA_ROOT = os.path.join(MEDIA_ROOT, PROTECTED_SUBPATH)
 SERVE_PROTECTED_MEDIA_DIRECT = (
     os.getenv("SERVE_PROTECTED_MEDIA_DIRECT", "true") == "true"
 )
+
+
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")

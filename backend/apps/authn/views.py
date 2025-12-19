@@ -9,10 +9,17 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from icecream import ic
 
+from django.core.mail import send_mail
+from django.conf import settings
+from .tokens import email_verification_token
+
 
 from apps.doctors.serializers import DoctorSerializer
 from apps.patients.serializers import PatientSerializer
 from apps.users.tasks import send_email_template
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from rest_framework.views import APIView
 from .serializers import (
     CustomTokenObtainPairSerializer,
     RegisterSerializer,
@@ -28,18 +35,52 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        return Response(
-            {"message": "User registered successfully", "user_id": user.id},
-            status=status.HTTP_201_CREATED,
+    def perform_create(self, serializer):
+        user = serializer.save(is_email_verified=False)
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = email_verification_token.make_token(user)
+
+        verify_url = f"{settings.FRONTEND_URL}/verify-email/?uid={uid}&token={token}"
+
+        send_mail(
+            subject="Verify your email",
+            message=f"Click the link to verify your email: {verify_url}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
         )
+
+        return user
+
+
+
+class VerifyEmailView(APIView):
+    def get(self, request):
+        uid = request.query_params.get("uid")
+        token = request.query_params.get("token")
+
+        if not uid or not token:
+            return Response({"error": "Invalid link"}, status=400)
+
+        try:
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+        except Exception:
+            return Response({"error": "Invalid user"}, status=400)
+
+        if email_verification_token.check_token(user, token):
+            user.is_email_verified = True
+            user.save(update_fields=["is_email_verified"])
+            return Response({"message": "Email verified successfully"})
+        else:
+            return Response({"error": "Invalid or expired token"}, status=400)
+
 
 
 class MeView(views.APIView):

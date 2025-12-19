@@ -1,6 +1,10 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 from django.db import models
-import uuid 
+import uuid
 
 
 class UserManager(BaseUserManager):
@@ -21,29 +25,29 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     class Genders(models.TextChoices):
-        MALE = 'M', 'Male'
-        FEMALE = 'F' , 'Female'
+        MALE = "M", "Male"
+        FEMALE = "F", "Female"
 
     class Roles(models.TextChoices):
-        DOCTOR = 'D', 'Doctor'
-        PATIENT = 'P', 'Patient'
-        ADMIN = 'A', 'ADMIN'
-        
-    username = None 
+        DOCTOR = "D", "Doctor"
+        PATIENT = "P", "Patient"
+        ADMIN = "A", "ADMIN"
+
+    username = None
     id = models.UUIDField(
-        unique=True,
-        editable=False,
-        primary_key=True,
-        default=uuid.uuid4
+        unique=True, editable=False, primary_key=True, default=uuid.uuid4
     )
-    image = models.ImageField(upload_to="users/profile/",  null=True, blank=True)
-    role = models.CharField(max_length=50,choices=Roles.choices, default=Roles.PATIENT)
+    image = models.ImageField(upload_to="users/profile/", null=True, blank=True)
+    role = models.CharField(max_length=50, choices=Roles.choices, default=Roles.PATIENT)
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=255)
-    gender = models.CharField(max_length=10, choices=Genders.choices, default=Genders.MALE)
+    gender = models.CharField(
+        max_length=10, choices=Genders.choices, default=Genders.MALE
+    )
     dob = models.DateField(blank=True, null=True)
     objects = UserManager()
     is_active = models.BooleanField(default=True)
+    is_email_verified = models.BooleanField(default=False) ## just added this
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
@@ -55,12 +59,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_doctor(self):
         return self.role == User.Roles.DOCTOR
-    
+
     @property
     def is_admin(self):
         return self.role == User.Roles.ADMIN
-    
-    
+
     @property
     def is_patient(self):
         return self.role == User.Roles.PATIENT

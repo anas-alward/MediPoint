@@ -7,27 +7,44 @@ from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
 from apps.users.models import User
 from apps.users.serializers import UserSerializer
+from django.contrib.auth import login
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth import login
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
-        # Call the parent class's get_token method to create the token
         token = super().get_token(user)
-
-        # Add custom claims
-        token['role'] = user.role  # Assuming the user model has a `role` field
-
+        token["role"] = user.role  # static claim
         return token
-    
+
     def validate(self, attrs):
         data = super().validate(attrs)
-        
-        # Add user data using your existing UserSerializer
-        user_serializer = UserSerializer(self.user)
-        data['user'] = user_serializer.data
-        
-        return data
+        request = self.context["request"]
+
+        # --------------------------
+        # Ensure session exists
+        # --------------------------
+        if not request.session.session_key:
+            request.session.create()  # creates a new session if missing
+
     
+
+        session_id = request.session.session_key
+
+        # --------------------------
+        # Add user data
+        # --------------------------
+        user_serializer = UserSerializer(self.user)
+        data["user"] = user_serializer.data
+        data["sessionid"] = session_id
+
+        return data
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True,

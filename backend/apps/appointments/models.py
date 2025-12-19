@@ -36,7 +36,6 @@ class Appointment(models.Model):
     additional_info = models.TextField(blank=True, null=True)
     payment_id = models.CharField(max_length=100, blank=True, null=True)
     
-    # objects = AppointmentModelManger()
     
         
     def __str__(self):
