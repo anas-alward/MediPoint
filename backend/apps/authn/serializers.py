@@ -15,31 +15,34 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token["role"] = user.role  # static claim
-        return token
-
     def validate(self, attrs):
-        data = super().validate(attrs)
         request = self.context["request"]
 
-        # --------------------------
-        # Ensure session exists
-        # --------------------------
+        # Step 1: Call parent validate to set self.user
+        data = super().validate(attrs)  # ✅ self.user is now available
+
+        # Step 2: Ensure a session exists
         if not request.session.session_key:
-            request.session.create()  # creates a new session if missing
-
-    
-
+            request.session.create()
         session_id = request.session.session_key
 
-        # --------------------------
-        # Add user data
-        # --------------------------
-        user_serializer = UserSerializer(self.user)
-        data["user"] = user_serializer.data
+        # Step 3: Create tokens manually
+        refresh = self.get_token(self.user)  # now self.user exists
+        access = refresh.access_token
+
+        # Step 4: Inject claims
+        refresh["role"] = self.user.role
+        refresh["sessionid"] = session_id
+        access["role"] = self.user.role
+        access["sessionid"] = session_id
+
+        # Step 5: Override default token strings in response
+        data["refresh"] = str(refresh)
+        data["access"] = str(access)
+
+        # Step 6: Add extra info to response
+
+        data["user"] = UserSerializer(self.user).data
         data["sessionid"] = session_id
 
         return data

@@ -187,6 +187,7 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,  # Issue a new refresh token on refresh
     "BLACKLIST_AFTER_ROTATION": True,  # Blacklist old refresh tokens
     "AUTH_HEADER_TYPES": ("Bearer",),  # Use 'Bearer' in Authorization header
+    "SIGNING_KEY": SECRET_KEY,
 }
 
 
