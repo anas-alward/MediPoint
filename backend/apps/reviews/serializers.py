@@ -14,7 +14,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'patient', 'rating', 'content', 'doctor', 'comments', 'created_at', 'updated_at']
-        read_only_fields = ['patient', 'doctor', 'created_at', 'updated_at']
+        read_only_fields = ['patient', 'created_at', 'updated_at']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
