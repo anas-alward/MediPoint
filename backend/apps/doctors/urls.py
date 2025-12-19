@@ -3,7 +3,8 @@ from .views import (
     ScheduleViewSet,
     WorkingHoursViewSet,
     SpecialtyListAPIView,
-    DoctorInitAPIView
+    DoctorInitAPIView,
+    DashboardDataAPIView,
 )
 from rest_framework_nested.routers import NestedSimpleRouter
 from rest_framework.routers import DefaultRouter
@@ -27,7 +28,8 @@ nested_router.register(
 
 doctor_routes = [
     path("doctors/init/", DoctorInitAPIView.as_view()),
+    path("doctors/dashboard/", DashboardDataAPIView.as_view()),
     path("", include(router.urls)),
-    path("", include(nested_router.urls)),
+    path("", include(nested_router.urls)), 
     path("specialties/", SpecialtyListAPIView.as_view()),
 ]

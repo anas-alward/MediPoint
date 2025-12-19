@@ -144,3 +144,5 @@ class WorkingHours(models.Model):
         # Call the clean method before saving
         self.clean()
         super().save(*args, **kwargs)
+
+

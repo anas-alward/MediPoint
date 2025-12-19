@@ -8,9 +8,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from icecream import ic
-
+from rest_framework import serializers
 from django.core.mail import send_mail
 from django.conf import settings
+
 from .tokens import email_verification_token
 
 
@@ -86,76 +87,110 @@ class VerifyEmailView(APIView):
 class MeView(views.APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = User.objects.filter(id=request.user.id).select_related("doctor", "patient").first()
-        if not user:
-            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        if user.is_doctor:
-            return Response(DoctorSerializer(user.doctor, context={"request": request}).data)
-        
-        if user.is_patient:
-            return Response(PatientSerializer(user.patient, context={"request": request}).data)
-
-        return Response(
-            {"detail": "User is neither a doctor nor a patient."},
-            status=status.HTTP_400_BAD_REQUEST,
+    def get_serializer_class(self):
+        """Dynamically return the appropriate serializer class based on user role."""
+        # Get fresh user with relations for serializer determination
+        user = (
+            User.objects.filter(id=self.request.user.id)
+            .select_related("doctor", "patient")
+            .first()
         )
 
-    def put(self, request):
-        # Debugging or logging the incoming data
-        ic(self.request.data)
-        user = request.user
-
-        # Check if request data is empty
-        if not request.data:
-            return Response({"detail": "No data provided."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Parse the incoming data
-        parsed_data = {}
-        for key in request.data:
-            value = request.data.get(key)
-            if key.startswith("user"):
-                try:
-                    # Extract the part inside brackets
-                    new_key = key.split("[")[1].rstrip("]")
-                    parsed_data.setdefault("user", {})[new_key] = value
-                except IndexError:
-                    return Response({"detail": f"Malformed key: {key}"}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                parsed_data[key] = value
-
-        # Determine the serializer class
         if user.is_doctor:
-            serializer_class = DoctorSerializer
+            return DoctorSerializer
         elif user.is_patient:
-            serializer_class = PatientSerializer
-        else:
-            return Response({"detail": "User role is invalid."}, status=status.HTTP_403_FORBIDDEN)
+            return PatientSerializer
+        raise serializers.ValidationError("User role is invalid.")
 
-        # Access the related model instance
-        model_instance = user.doctor if user.is_doctor else user.patient if user.is_patient else None
-        if not model_instance:
-            return Response({"detail": "User profile is incomplete."}, status=status.HTTP_400_BAD_REQUEST)
+    def get_serializer(self, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        kwargs["context"] = self.get_serializer_context()
+        return serializer_class(*args, **kwargs)
 
-        # Validate and save the data
-        serializer = serializer_class(model_instance, data=parsed_data, partial=True)
+    def get_serializer_context(self):
+        return {"request": self.request, "view": self}
+
+    def get(self, request):
+        user = (
+            User.objects.filter(id=request.user.id)
+            .select_related("doctor", "patient")
+            .first()
+        )
+        if not user:
+            return Response(
+                {"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            serializer_class = self.get_serializer_class()
+        except serializers.ValidationError:
+            return Response(
+                {"detail": "User is neither a doctor nor a patient."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        instance = user.doctor if user.is_doctor else user.patient
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def put(self, request):
+        user = (
+            User.objects.filter(id=request.user.id)
+            .select_related("doctor", "patient")
+            .first()
+        )
+
+        if not request.data:
+            return Response(
+                {"detail": "No data provided."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Parse nested data
+        parsed_data = request.data.copy()
+        if "user" not in parsed_data:
+            parsed_data["user"] = {}
+
+        # Handle nested user data in the format user[field_name]
+        for key in list(parsed_data.keys()):
+            if key.startswith("user["):
+                try:
+                    field_name = key[5:-1]  # Extract field name from user[field_name]
+                    parsed_data["user"][field_name] = parsed_data.pop(key)
+                except (IndexError, KeyError):
+                    continue
+
+        try:
+            serializer_class = self.get_serializer_class()
+        except serializers.ValidationError:
+            return Response(
+                {"detail": "User role is invalid."}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        instance = user.doctor if user.is_doctor else user.patient
+        if not instance:
+            return Response(
+                {"detail": "User profile is incomplete."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = self.get_serializer(instance, data=parsed_data, partial=True)
+
         if serializer.is_valid():
             try:
                 serializer.save()
                 return Response(
-                    {"message": f"{'Doctor' if user.is_doctor else 'Patient'} profile updated successfully"},
-                    status=status.HTTP_200_OK
+                    {
+                        "message": f"{'Doctor' if user.is_doctor else 'Patient'} profile updated successfully"
+                    },
+                    status=status.HTTP_200_OK,
                 )
             except ValueError as e:
-                # Handle the specific ValueError raised by the Doctor model's save method
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Handle validation errors
-        return Response({
-            "detail": "Invalid data provided.",
-            "errors": serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "Invalid data provided.", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class PasswordChangeView(generics.UpdateAPIView):
