@@ -5,7 +5,8 @@ from .medical_chatbot import MedicalChatBot
 from rest_framework.permissions import IsAuthenticated
 import uuid
 from icecream import ic
-from apps.doctors.models import Specialty
+from apps.doctors.models import Specialty, Doctor
+from apps.doctors.serializers import DoctorSerializer
 
 CHATBOT_SESSION_ID = "chatbot_session_id"
 
@@ -35,7 +36,8 @@ class ChatBotAPIView(APIView):
         chatbot_session_id = str(kwargs.get(CHATBOT_SESSION_ID, ""))
         if not chatbot_session_id:
             return Response(
-                {"message": "Session ID is required"}, status=status.HTTP_400_BAD_REQUEST
+                {"message": "Session ID is required"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         session_data = request.session.get(CHATBOT_SESSION_ID, [])
@@ -59,26 +61,30 @@ class ChatBotAPIView(APIView):
         # Get the chatbot response
         try:
             bot_response = chatbot.chat(user_input)
-            response = {
-                "text": bot_response,
-                "is_detected": False
-            }
+            response = {"text": bot_response, "is_detected": False}
             ic(bot_response)
             if bot_response.startswith("Diagnosis:"):
                 extracted_specialty = bot_response[10:].strip()
                 ic(extracted_specialty)
-                
-                specialty = Specialty.objects.filter(name__icontains=extracted_specialty)                
+
+                doctors = list()
+                specialty = Specialty.objects.filter(
+                    name__icontains=extracted_specialty
+                )
                 if specialty.count():
                     specialty_name = specialty[0].name
                     is_existed = True
+                    doctors = Doctor.objects.filter(
+                        specialty__name=specialty_name
+                    ).order_by("-rating", "-reviewers_num")[:5]
                 else:
                     is_existed = False
                     specialty_name = extracted_specialty
-                    
-                response['specialty'] = specialty_name
-                response['is_existed'] = is_existed
+
+                response["specialty"] = specialty_name
+                response["is_existed"] = is_existed
                 response["is_detected"] = True
+                response["doctors"] = DoctorSerializer(doctors, many=True).data
 
             return Response({"response": response}, status=status.HTTP_200_OK)
         except Exception as e:

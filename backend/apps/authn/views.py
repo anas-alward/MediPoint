@@ -129,7 +129,16 @@ class MeView(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        instance = user.doctor if user.is_doctor else user.patient
+        instance = None
+        if user.is_doctor:
+            instance = user.doctor
+        elif user.is_patient:
+            instance = user.patient
+        else:
+            return Response(
+                {"detail": "User profile is incomplete."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 

@@ -6,6 +6,7 @@ from model_utils.managers import QueryManager
 
 from apps.users.models import User
 
+
 class Doctor(models.Model):
     class Status(models.TextChoices):
         AVAILABLE = "A", "Available"
@@ -30,16 +31,20 @@ class Doctor(models.Model):
     degree_document = models.FileField(
         upload_to="doctor/degree", blank=True, null=True, max_length=1000
     )
-    address_line1 = models.CharField(max_length=250, blank=True, default='')
-    address_line2 = models.CharField(max_length=250, blank=True, default='')
-    
+    address_line1 = models.CharField(max_length=250, blank=True, default="")
+    address_line2 = models.CharField(max_length=250, blank=True, default="")
+
     objects = models.Manager()
     available = QueryManager(status=Status.AVAILABLE)
+    rating = models.FloatField(default=5.0)
+    reviewers_num = models.IntegerField(default=0)
 
     def clean(self):
         """Custom validation to ensure a doctor cannot be available without a specialty."""
         if self.status == Doctor.Status.AVAILABLE and not self.specialty:
-            raise ValidationError({"specialty": "Doctors cannot be available without a specialty."})
+            raise ValidationError(
+                {"specialty": "Doctors cannot be available without a specialty."}
+            )
 
     def save(self, *args, **kwargs):
         """Ensures validation runs before saving the object."""
@@ -48,6 +53,7 @@ class Doctor(models.Model):
 
     def __str__(self):
         return self.user.full_name
+
 
 class Specialty(models.Model):
     icon = models.FileField(
@@ -125,7 +131,7 @@ class WorkingHours(models.Model):
     )
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    
+
     patient_left = models.IntegerField(default=5)
     status = models.CharField(
         max_length=3, choices=Status.choices, default=Status.UPCOMING
@@ -144,5 +150,3 @@ class WorkingHours(models.Model):
         # Call the clean method before saving
         self.clean()
         super().save(*args, **kwargs)
-
-
