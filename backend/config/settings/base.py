@@ -59,8 +59,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "apps.authn.middlewares.JWTSessionMiddleware",  # Custom JWT Session Middleware
+    "apps.authn.middlewares.JWTSessionMiddleware",  
+    # "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -176,6 +176,18 @@ SESSION_COOKIE_NAME = "sessionid"  # Default session cookie name
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"  # Adjust as needed (can be 'None' if cross-origin)
 SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS
+
+# Default cache uses Redis; falls back to in-memory when REDIS_CACHE_URL is not provided
+REDIS_CACHE_URL = env("REDIS_CACHE_URL", default="redis://cache:6379/1")
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": REDIS_CACHE_URL,
+    }
+}
+
+PASSWORD_RESET_OTP_TTL = env.int("PASSWORD_RESET_OTP_TTL", default=10 * 60)
+EMAIL_VERIFICATION_OTP_TTL = env.int("EMAIL_VERIFICATION_OTP_TTL", default=15 * 60)
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -319,3 +331,12 @@ SERVE_PROTECTED_MEDIA_DIRECT = (
 
 
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
+
+# Trusted origins for CSRF
+CSRF_TRUSTED_ORIGINS = [
+    'https://api.decodaai.com',
+]
+
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024

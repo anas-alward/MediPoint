@@ -13,6 +13,7 @@ from django.utils.timezone import make_aware
 
 class Command(BaseCommand):
     help = "Seed doctors with related data"
+    images_dir = settings.BASE_DIR / "apps/doctors/fixtures/doctors/images"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -26,20 +27,16 @@ class Command(BaseCommand):
             default="apps/doctors/fixtures/doctors/profile.json",
             help="Path to doctors JSON data file",
         )
-        parser.add_argument(
-            "--images-dir",
-            type=str,
-            default="apps/doctors/fixtures/doctors/images",
-            help="Directory containing doctor profile images",
-        )
+        help="Directory containing doctor profile images",
+        
 
     def handle(self, *args, **options):
         if not settings.DEBUG:
             raise CommandError("This command can only be run in DEBUG mode.")
 
         data_file_path = settings.BASE_DIR / options["data_file"]
-        images_dir = settings.BASE_DIR / options["images_dir"]
-
+        
+        
         try:
             with open(data_file_path, "r") as f:
                 doctors_data = json.load(f)
@@ -51,7 +48,7 @@ class Command(BaseCommand):
         if options["clear"]:
             self.clear_doctors()
 
-        self.seed_doctors(doctors_data, images_dir)
+        self.seed_doctors(doctors_data, )
 
     def clear_doctors(self):
         """Clear existing doctors and related data"""
@@ -67,18 +64,19 @@ class Command(BaseCommand):
 
         self.stdout.write("✓ Cleared all doctors data")
 
-    def get_profile_image(self, image_name, images_dir):
+    def get_profile_image(self, image_name):
         """Get profile image file"""
         if not image_name:
             return None
 
-        image_path = images_dir / f"{image_name}.jpg"
+        image_path = self.images_dir / f"{image_name}.jpg"
 
         # Try different extensions
         extensions = [".jpg", ".jpeg", ".png", ".webp"]
         for ext in extensions:
-            test_path = images_dir / f"{image_name}{ext}"
-            print(test_path)
+            test_path =self.images_dir / f"{image_name}{ext}"
+            print("dd", test_path)
+            print("check p", self.images_dir.exists())
             if os.path.exists(test_path):
                 image_path = test_path
                 break
@@ -97,7 +95,7 @@ class Command(BaseCommand):
             )
             return None
 
-    def seed_doctors(self, doctors_data, images_dir):
+    def seed_doctors(self, doctors_data):
         """Create doctors with all related data"""
         self.stdout.write("Seeding doctors...")
 
@@ -117,7 +115,7 @@ class Command(BaseCommand):
 
                     # Get profile image
                     profile_image = self.get_profile_image(
-                        doctor_data.get("image"), images_dir
+                        doctor_data.get("image")
                     )
 
                     # Create or update doctor
@@ -160,7 +158,7 @@ class Command(BaseCommand):
             email=email,
             defaults={
                 "full_name": doctor_data["name"],
-                "image": self.get_profile_image(doctor_data.get("image"), settings.BASE_DIR / "doctors/fixtures/doctors/images"),
+                "image": self.get_profile_image(doctor_data.get("image")),
                 "password": make_password("doctor123"),  # Default password
                 "is_active": True,
             },

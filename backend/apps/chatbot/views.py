@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 import uuid
 from icecream import ic
 from apps.doctors.models import Specialty, Doctor
-from apps.doctors.serializers import DoctorSerializer
+from apps.doctors.serializers import DoctorListSerializer
 
 CHATBOT_SESSION_ID = "chatbot_session_id"
 
@@ -15,18 +15,14 @@ class StartChatBotAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        # Generate a unique session ID
         chatbot_session_id = str(uuid.uuid4())
+        
+        # Manually ensure the session object exists and is saved
         request.session[CHATBOT_SESSION_ID] = [chatbot_session_id]
-
-        session_data = request.session.get(CHATBOT_SESSION_ID, [])
-        ic(session_data)
-
-        # Return the session ID to the user
-        return Response(
-            {CHATBOT_SESSION_ID: chatbot_session_id}, status=status.HTTP_200_OK
-        )
-
+        request.session.modified = True
+        request.session.save() # <--- CRITICAL: Force write to django_session table
+        print (request.session[CHATBOT_SESSION_ID]) 
+        return Response({CHATBOT_SESSION_ID: chatbot_session_id}, status=status.HTTP_200_OK)
 
 class ChatBotAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -41,7 +37,8 @@ class ChatBotAPIView(APIView):
             )
 
         session_data = request.session.get(CHATBOT_SESSION_ID, [])
-
+        print("session_data:", session_data)
+        print("chatbot_session_id:", chatbot_session_id)
         if chatbot_session_id not in session_data:
             return Response(
                 {"error": "Chatbot Session with this ID does not exist"},
@@ -84,8 +81,9 @@ class ChatBotAPIView(APIView):
                 response["specialty"] = specialty_name
                 response["is_existed"] = is_existed
                 response["is_detected"] = True
-                response["doctors"] = DoctorSerializer(doctors, many=True).data
+                response["doctors"] = DoctorListSerializer(doctors, many=True).data
 
+                 
             return Response({"response": response}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(

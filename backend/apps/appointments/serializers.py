@@ -3,14 +3,35 @@ from rest_framework import serializers
 from apps.doctors.serializers import DoctorSerializer
 from apps.patients.serializers import PatientSerializer
 
-from .models import Appointment 
+from .models import Appointment, Payment
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = [
+            'id',
+            'appointment',
+            'amount',
+            'currency',
+            'payment_type',
+            'status',
+            'provider_payment_id',
+            'receipt_url',
+            'metadata',
+            'paid_at',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['created_at', 'updated_at', 'paid_at']
 
 class AppointmentSerializer(serializers.ModelSerializer):
     datetime = serializers.SerializerMethodField()
+    payment = PaymentSerializer(read_only=True)
     
     class Meta:
         model = Appointment
-        fields = ['id','patient','datetime', 'doctor', 'status', 'fees', 'working_hours','additional_info']
+        fields = ['id','patient','datetime', 'doctor', 'status', 'fees', 'working_hours','additional_info','payment']
         read_only_fields = ['patient', 'doctor', 'fees']
     
         def __init__(self, *args, **kwargs):

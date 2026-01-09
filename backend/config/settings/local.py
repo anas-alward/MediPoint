@@ -7,7 +7,7 @@ DEBUG = True
 # Allowed hosts for local development
 # settings.py
 
-ALLOWED_HOSTS = ['164.92.161.163', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
 # Database (use SQLite or another local database)
 DATABASES = {
@@ -34,15 +34,23 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "email" 
-EMAIL_PORT = 1025
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = False
+EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 
-DEFAULT_FROM_EMAIL = "medipoint@decodaai.com"  # if you don't already have this in settings
+ANYMAIL = {
+    "MAILJET_API_KEY": env("MAILJET_API_KEY"),
+    "MAILJET_SECRET_KEY": env("MAILJET_SECRET_KEY"),
+    "MAILJET_API_URL": "https://api.mailjet.com/v3.1",
+}
 
-# SERVER_EMAIL = ""  # ditto (default from-email for Django errors)
+DEFAULT_FROM_EMAIL = env(
+    "DEFAULT_FROM_EMAIL",
+    default="medipoint@decodaai.com",
+)
+
+SERVER_EMAIL = env(
+    "SERVER_EMAIL",
+    default=DEFAULT_FROM_EMAIL,
+)
 
 
 # Celery settings for local development

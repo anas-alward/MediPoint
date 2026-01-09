@@ -8,6 +8,9 @@ class WorkingHoursSerializer(serializers.ModelSerializer):
         model = WorkingHours
         fields = ["id", "start_time", "end_time", "doctor", "patient_left"]
 
+class DoctorListSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False)
+    specialty = serializers.StringRelatedField()
 
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,11 +49,15 @@ class DoctorSerializer(serializers.ModelSerializer):
             "status",
             "is_verified",
             "degree_document",
+            "reviewers_num",
+            "rating",
         ]
         extra_kwargs = {
             "specialty": {"read_only": True},
             "is_verified": {"read_only": True},
             "degree_document": {"write_only": True},
+            "rating": {"read_only": True},
+            "reviewers_num": {"read_only": True},
         }
 
     def __init__(self, *args, **kwargs):

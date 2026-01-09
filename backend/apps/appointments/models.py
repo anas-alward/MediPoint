@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 from apps.patients.models import Patient
 from apps.doctors.models import Doctor, WorkingHours
@@ -13,6 +14,7 @@ class Appointment(models.Model):
         MISSED = 'M' , 'Missed'
         CANCELLED = 'C' , 'Cancelled'
         DELAYED = 'DE', 'Delayed'
+        PAYMENT_FAILED = 'PF', 'Payment Failed'
         
     patient = models.ForeignKey(
         Patient,
@@ -55,3 +57,70 @@ class Appointment(models.Model):
         
         self.status = Appointment.Status.DONE
         self.save()
+
+
+class Payment(models.Model):
+    class PaymentType(models.TextChoices):
+        STRIPE = "stripe", "Stripe"
+        MANUAL = "manual", "Manual"
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        SUCCEEDED = "succeeded", "Succeeded"
+        FAILED = "failed", "Failed"
+        CANCELED = "canceled", "Canceled"
+        REFUNDED = "refunded", "Refunded"
+
+    appointment = models.OneToOneField(
+        "Appointment",
+        related_name="payment",
+        on_delete=models.CASCADE,
+    )
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    currency = models.CharField(max_length=10, default="usd")
+    payment_type = models.CharField(
+        max_length=20, choices=PaymentType.choices, default=PaymentType.STRIPE
+    )
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.PENDING
+    )
+    provider_payment_id = models.CharField(max_length=255, blank=True, null=True)
+    receipt_url = models.URLField(blank=True, null=True)
+    metadata = models.JSONField(blank=True, null=True)
+    paid_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Payment for appointment {self.appointment_id} ({self.payment_type})"
+
+    def mark_succeeded(self, provider_payment_id: str | None = None, receipt_url: str | None = None, metadata=None):
+        self.status = Payment.Status.SUCCEEDED
+        self.paid_at = self.paid_at or timezone.now()
+        if provider_payment_id:
+            self.provider_payment_id = provider_payment_id
+        if receipt_url:
+            self.receipt_url = receipt_url
+        if metadata is not None:
+            self.metadata = metadata
+        self.save(update_fields=[
+            "status",
+            "paid_at",
+            "provider_payment_id",
+            "receipt_url",
+            "metadata",
+            "updated_at",
+        ])
+
+    def mark_failed(self, provider_payment_id: str | None = None, metadata=None):
+        self.status = Payment.Status.FAILED
+        if provider_payment_id:
+            self.provider_payment_id = provider_payment_id
+        if metadata is not None:
+            self.metadata = metadata
+        self.save(update_fields=[
+            "status",
+            "provider_payment_id",
+            "metadata",
+            "updated_at",
+        ])

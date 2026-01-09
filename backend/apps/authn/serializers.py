@@ -1,17 +1,12 @@
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_decode
-from rest_framework.exceptions import ValidationError
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
-from rest_framework.validators import UniqueValidator
+from django.core.cache import cache
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueValidator
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 from apps.users.models import User
 from apps.users.serializers import UserSerializer
-from django.contrib.auth import login
-
-from django.contrib.auth import get_user_model
-from django.contrib.auth import login
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -82,6 +77,27 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+class EmailVerificationSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField(max_length=6)
+
+    def validate(self, data):
+        email = data["email"].lower()
+        cache_key = f"email_verification_otp:{email}"
+        cached_otp = cache.get(cache_key)
+
+        if not cached_otp or str(data["otp"]).strip() != str(cached_otp):
+            raise ValidationError("Invalid or expired OTP.")
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise ValidationError("Invalid user.")
+
+        data["user"] = user
+        data["cache_key"] = cache_key
+        return data
+
 
 class PasswordChangeSerializer(serializers.Serializer):
     old_password = serializers.CharField(write_only=True)
@@ -107,19 +123,28 @@ class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
-    uidb64 = serializers.CharField()
-    token = serializers.CharField()
+    email = serializers.EmailField()
+    otp = serializers.CharField(max_length=6)
     new_password = serializers.CharField(min_length=8)
 
     def validate(self, data):
+        email = data["email"].lower()
+        cache_key = f"password_reset_otp:{email}"
+        cached_otp = cache.get(cache_key)
+
+        if not cached_otp:
+            raise ValidationError("Invalid or expired OTP.")
+
+        if str(data["otp"]).strip() != str(cached_otp):
+            raise ValidationError("Invalid or expired OTP.")
+
         try:
-            uid = urlsafe_base64_decode(data['uidb64']).decode()
-            user = User.objects.get(pk=uid)
-        except (User.DoesNotExist, ValueError):
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
             raise ValidationError("Invalid user.")
 
-        if not default_token_generator.check_token(user, data['token']):
-            raise ValidationError("Invalid or expired token.")
+        validate_password(data["new_password"])
 
-        data['user'] = user
+        data["user"] = user
+        data["cache_key"] = cache_key
         return data

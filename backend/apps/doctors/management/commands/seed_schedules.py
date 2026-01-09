@@ -24,7 +24,9 @@ class Command(BaseCommand):
         schedules_per_doctor = options["schedules_per_doctor"] or random.randint(1, 3)
 
         for doctor in doctors:
-            if doctor.id in existing_schedules:
+            print("D", doctor)
+            print("id", doctor.user.id)
+            if doctor.user.id in existing_schedules:
                 self.stdout.write(self.style.WARNING(f"Skipping {doctor.user.full_name} (Schedule exists)"))
                 continue
 

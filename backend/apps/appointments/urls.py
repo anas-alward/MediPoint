@@ -1,12 +1,13 @@
 from django.urls import path, include
 from rest_framework_nested.routers import SimpleRouter, NestedSimpleRouter
-from .views import AppointmentViewSet
+from .views import AppointmentViewSet, PaymentViewSet
 from .webhook import stripe_webhook 
 from apps.reviews.views import ReviewsViewSet
 
 router = SimpleRouter()
 
 router.register(r"appointments", AppointmentViewSet, basename='appointments')
+router.register(r"payments", PaymentViewSet, basename='payments')
 appointment_router = NestedSimpleRouter(router, r'appointments', lookup='appointment')
 appointment_router.register(r"reviews", ReviewsViewSet, basename="appointment-reviews")
 

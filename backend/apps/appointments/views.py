@@ -2,6 +2,7 @@ import stripe
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -11,9 +12,9 @@ from rest_framework import viewsets
 
 from apps.users.tasks import send_email_template
 
-from .serializers import AppointmentSerializer
-from .permissions import AppointmentPermissions
-from .models import Appointment, WorkingHours
+from .serializers import AppointmentSerializer, PaymentSerializer
+from .permissions import AppointmentPermissions, PaymentPermissions
+from .models import Appointment, WorkingHours, Payment
 
 
 class AppointmentViewSet(viewsets.ModelViewSet):
@@ -50,7 +51,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         doctor = working_hours.doctor
 
         serializer.save(patient=self.request.user.patient, doctor=doctor, fees=fees)
-
+        print("Appointment created:", serializer.data.get("id"))
 
     # Patient can cancel appointments they made
     # Doctor can cancel appointments they have
@@ -93,46 +94,99 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         return Response({"message": "Appointment canceled"}, status=status.HTTP_200_OK)
 
 
-    @action(detail=True, methods=["post"], permission_classes=[AppointmentPermissions])
-    def pay(self, request, pk=None):
-        """Creates a Stripe Checkout session for this appointment."""
+
+    @action(detail=True, methods=["post"], url_path="create-payment-intent")
+    def create_payment_intent(self, request, pk=None):
         appointment = self.get_object()
 
-        if not request.user.is_patient or appointment.patient != request.user.patient:
+        if appointment.patient != request.user.patient:
+            return Response(status=403)
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY 
+
+        payment, _ = Payment.objects.get_or_create(
+            appointment=appointment,
+            defaults={
+                "amount": appointment.fees,
+                "currency": "usd",
+                "payment_type": Payment.PaymentType.STRIPE,
+            },
+        )
+
+        if payment.payment_type != Payment.PaymentType.STRIPE:
             return Response(
-                {"detail": "Only the patient can make a payment."},
-                status=status.HTTP_403_FORBIDDEN,
+                {"message": "This appointment is configured for manual payments."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        stripe.api_key = settings.STRIPE_SECRET_KEY
+        payment.status = Payment.Status.PENDING
+        payment.amount = appointment.fees
+        payment.currency = "usd"
+        payment.save(update_fields=["status", "amount", "currency", "updated_at"])
 
-        try:
-            session = stripe.checkout.Session.create(
-                payment_method_types=["card"],
-                line_items=[
-                    {
-                        "price_data": {
-                            "currency": "usd",
-                            "product_data": {
-                                "name": f"Appointment with Dr. {appointment.doctor.user.full_name}",
-                            },
-                            "unit_amount": int(
-                                appointment.fees * 100
-                            ),  # Convert to cents
-                        },
-                        "quantity": 1,
-                    }
-                ],
-                mode="payment",
-                success_url="https://medipoint.decodaai.com/p/my-appointments",  # Replace with your frontend URL
-                cancel_url="https://medipoint.decodaai.com/p/my-appointments",
-                metadata={"appointment_id": appointment.id},
+        intent = stripe.PaymentIntent.create(
+            amount=int(appointment.fees * 100),
+            currency="usd",
+            automatic_payment_methods={"enabled": True},
+            metadata={
+                "appointment_id": appointment.id,
+                "user_id": request.user.id,
+            },
+        )
+
+        payment.provider_payment_id = intent.id
+        payment.metadata = dict(intent.metadata)
+        payment.save(update_fields=["provider_payment_id", "metadata", "updated_at"])
+
+        return Response(
+            {"client_secret": intent.client_secret},
+            status=200
+        )
+
+    @action(detail=True, methods=["post"], url_path="manual-payment", permission_classes=[AppointmentPermissions])
+    def manual_payment(self, request, pk=None):
+        appointment = self.get_object()
+
+        # Ensure the caller is either the patient or doctor tied to this appointment
+        user = request.user
+        if user.is_patient and appointment.patient != user.patient:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        if user.is_doctor and appointment.doctor != user.doctor:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        if hasattr(appointment, "payment"):
+            return Response(
+                {"message": "Payment already exists for this appointment."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-            return Response({"checkout_url": session.url}, status=status.HTTP_200_OK)
+        amount = request.data.get("amount") or appointment.fees
+        currency = request.data.get("currency") or "usd"
+        status_value = request.data.get("status") or Payment.Status.SUCCEEDED
+        reference = request.data.get("reference")
+        metadata = request.data.get("metadata")
 
-        except stripe.error.StripeError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        payment = Payment.objects.create(
+            appointment=appointment,
+            amount=amount,
+            currency=currency,
+            payment_type=Payment.PaymentType.MANUAL,
+            status=status_value,
+            provider_payment_id=reference,
+            metadata=metadata,
+            paid_at=timezone.now() if status_value == Payment.Status.SUCCEEDED else None,
+        )
+
+        if payment.status == Payment.Status.SUCCEEDED:
+            appointment.status = Appointment.Status.PAID
+            appointment.payment_id = payment.provider_payment_id
+            appointment.save(update_fields=["status", "payment_id"])
+        elif payment.status == Payment.Status.FAILED:
+            appointment.status = Appointment.Status.PAYMENT_FAILED
+            appointment.save(update_fields=["status"])
+
+        serializer = PaymentSerializer(payment, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"], permission_classes=[AppointmentPermissions])
     def complete(self, request, pk=None):
@@ -143,5 +197,84 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             return Response({"status": "Appointment completed successfully"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PaymentViewSet(viewsets.ModelViewSet):
+    serializer_class = PaymentSerializer
+    permission_classes = [PaymentPermissions]
+
+    def get_queryset(self):
+        user = self.request.user
+        base_qs = Payment.objects.select_related(
+            "appointment",
+            "appointment__patient",
+            "appointment__doctor",
+        )
+
+        if user.is_patient:
+            return base_qs.filter(appointment__patient=user.patient)
+        if user.is_doctor:
+            return base_qs.filter(appointment__doctor=user.doctor)
+        return Payment.objects.none()
+
+    def perform_create(self, serializer):
+        appointment = serializer.validated_data.get("appointment")
+        if appointment is None:
+            raise ValidationError("Appointment is required to create a payment.")
+
+        user = self.request.user
+        if user.is_patient and appointment.patient != user.patient:
+            raise ValidationError("You cannot create payments for other patients.")
+        if user.is_doctor and appointment.doctor != user.doctor:
+            raise ValidationError("You cannot create payments for other doctors.")
+
+        if hasattr(appointment, "payment"):
+            raise ValidationError("A payment already exists for this appointment.")
+
+        status_value = serializer.validated_data.get("status", Payment.Status.PENDING)
+        paid_at = serializer.validated_data.get("paid_at")
+        if status_value == Payment.Status.SUCCEEDED and paid_at is None:
+            paid_at = timezone.now()
+
+        payment = serializer.save(
+            amount=serializer.validated_data.get("amount", appointment.fees),
+            currency=serializer.validated_data.get("currency", "usd"),
+            paid_at=paid_at,
+        )
+
+        if payment.status == Payment.Status.SUCCEEDED:
+            appointment.status = Appointment.Status.PAID
+            appointment.payment_id = payment.provider_payment_id or appointment.payment_id
+            appointment.save(update_fields=["status", "payment_id"])
+
+    def perform_update(self, serializer):
+        previous_status = serializer.instance.status
+        payment = serializer.save()
+
+        if payment.status == Payment.Status.SUCCEEDED and payment.paid_at is None:
+            payment.paid_at = timezone.now()
+            payment.save(update_fields=["paid_at", "updated_at"])
+
+        if payment.status != previous_status:
+            appointment = payment.appointment
+            if payment.status == Payment.Status.SUCCEEDED:
+                appointment.status = Appointment.Status.PAID
+                appointment.payment_id = payment.provider_payment_id or appointment.payment_id
+                appointment.save(update_fields=["status", "payment_id"])
+            elif payment.status == Payment.Status.FAILED:
+                appointment.status = Appointment.Status.PAYMENT_FAILED
+                appointment.save(update_fields=["status"])
+            elif payment.status == Payment.Status.CANCELED:
+                appointment.status = Appointment.Status.CANCELLED
+                appointment.payment_id = None
+                appointment.save(update_fields=["status", "payment_id"])
+
+    def perform_destroy(self, instance):
+        appointment = instance.appointment
+        super().perform_destroy(instance)
+        if appointment.status == Appointment.Status.PAID:
+            appointment.status = Appointment.Status.PENDING
+        appointment.payment_id = None
+        appointment.save(update_fields=["status", "payment_id"])
     
     

@@ -49,7 +49,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_email_verified = models.BooleanField(default=False) ## just added this
     is_staff = models.BooleanField(default=False)
-
+    
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["full_name"]
 
