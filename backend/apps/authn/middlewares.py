@@ -1,32 +1,26 @@
 import jwt
 from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.contrib.sessions.models import Session
-from django.utils.deprecation import MiddlewareMixin
 
-
-class JWTSessionMiddleware(MiddlewareMixin):
-    """
-    Overrides default session lookup to read session_id from JWT payload
-    sent in Authorization header.
-    """
-
+class JWTSessionMiddleware(SessionMiddleware):
     def process_request(self, request):
+        # 1. Try to get session_id from JWT in Authorization header
         auth_header = request.headers.get("Authorization", "")
+        session_id = None
+
         if auth_header.startswith("Bearer "):
             token = auth_header.split(" ")[1]
-
             try:
-                payload = jwt.decode(
-                    token, settings.SIMPLE_JWT["SIGNING_KEY"], algorithms=["HS256"]
-                )
+                # Use Simple JWT's key or Django's SECRET_KEY
+                key = settings.SIMPLE_JWT.get("SIGNING_KEY", settings.SECRET_KEY)
+                payload = jwt.decode(token, key, algorithms=["HS256"])
                 session_id = payload.get("sessionid")
             except Exception:
                 session_id = None
-        else:
-            session_id = None
 
-        # Fallback to cookie if JWT does not provide session_id
+        # 2. If we found a session_id in the JWT, use it
         if session_id:
-            request.COOKIES["sessionid"] = session_id
-        # SessionMiddleware will pick up session from request.COOKIES as usual
+            request.session = self.SessionStore(session_id)
+        else:
+            # 3. Otherwise, fall back to standard cookie-based session logic
+            super().process_request(request)
