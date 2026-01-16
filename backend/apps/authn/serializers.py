@@ -51,34 +51,33 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-        required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
+        required=True, validators=[UniqueValidator(queryset=User.objects.all())]
     )
     password = serializers.CharField(
         write_only=True,
         required=True,
-        style={'input_type': 'password'},
-        validators=[validate_password]
+        style={"input_type": "password"},
+        validators=[validate_password],
     )
     password2 = serializers.CharField(
-        write_only=True,
-        required=True,
-        style={'input_type': 'password'}
+        write_only=True, required=True, style={"input_type": "password"}
     )
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'full_name', 'role', 'password', 'password2')
+        fields = ("id", "email", "full_name", "role", "password", "password2")
 
     def validate(self, data):
         """Ensure passwords match"""
-        if data['password'] != data['password2']:
+        if data["password"] != data["password2"]:
             raise serializers.ValidationError({"password": "Passwords do not match"})
         return data
 
     def create(self, validated_data):
         """Create a new user with hashed password"""
-        validated_data.pop('password2')  # Remove password2 since it's unnecessary for user creation
+        validated_data.pop(
+            "password2"
+        )  # Remove password2 since it's unnecessary for user creation
         user = User.objects.create_user(**validated_data)
         return user
 
@@ -129,7 +128,7 @@ class PasswordChangeSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True)
 
     def validate_old_password(self, value):
-        user = self.context['request'].user
+        user = self.context["request"].user
         if not user.check_password(value):
             raise serializers.ValidationError("Old password is incorrect")
         return value
@@ -139,7 +138,7 @@ class PasswordChangeSerializer(serializers.Serializer):
         return value
 
     def update(self, instance, validated_data):
-        instance.set_password(validated_data['new_password'])
+        instance.set_password(validated_data["new_password"])
         instance.save()
         return instance
 
@@ -147,8 +146,7 @@ class PasswordChangeSerializer(serializers.Serializer):
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
-
-class PasswordResetVerifySerializer(serializers.Serializer):
+class PasswordResetConfirmSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
 
@@ -170,7 +168,7 @@ class PasswordResetVerifySerializer(serializers.Serializer):
         return data
 
 
-class PasswordResetConfirmSerializer(serializers.Serializer):
+class PasswordResetVerifySerializer(serializers.Serializer):
     email = serializers.EmailField()
     token = serializers.CharField()
     new_password = serializers.CharField(min_length=8)
