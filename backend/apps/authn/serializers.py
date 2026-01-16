@@ -12,9 +12,15 @@ from apps.users.serializers import UserSerializer
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         request = self.context["request"]
-
+ 
         # Step 1: Call parent validate to set self.user
         data = super().validate(attrs)  # ✅ self.user is now available
+        print("HI")
+        # Block login for inactive or unverified accounts
+        if not self.user.is_active:
+            raise ValidationError("Account is inactive.")
+        if not self.user.is_email_verified:
+            raise ValidationError("Email is not verified. Please verify your email before logging in.")
 
         # Step 2: Ensure a session exists
         if not request.session.session_key:
@@ -99,6 +105,25 @@ class EmailVerificationSerializer(serializers.Serializer):
         return data
 
 
+class EmailVerificationResendSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate(self, data):
+        email = data["email"].lower()
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise ValidationError("Invalid user.")
+
+        if user.is_email_verified:
+            raise ValidationError("Email already verified.")
+
+        data["user"] = user
+        data["email"] = email
+        return data
+
+
 class PasswordChangeSerializer(serializers.Serializer):
     old_password = serializers.CharField(write_only=True)
     new_password = serializers.CharField(write_only=True)
@@ -122,21 +147,41 @@ class PasswordChangeSerializer(serializers.Serializer):
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
-class PasswordResetConfirmSerializer(serializers.Serializer):
+
+class PasswordResetVerifySerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
-    new_password = serializers.CharField(min_length=8)
 
     def validate(self, data):
         email = data["email"].lower()
         cache_key = f"password_reset_otp:{email}"
         cached_otp = cache.get(cache_key)
 
-        if not cached_otp:
+        if not cached_otp or str(data["otp"]).strip() != str(cached_otp):
             raise ValidationError("Invalid or expired OTP.")
 
-        if str(data["otp"]).strip() != str(cached_otp):
-            raise ValidationError("Invalid or expired OTP.")
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise ValidationError("Invalid user.")
+
+        data["user"] = user
+        data["cache_key"] = cache_key
+        return data
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(min_length=8)
+
+    def validate(self, data):
+        email = data["email"].lower()
+        cache_key = f"password_reset_token:{email}"
+        cached_token = cache.get(cache_key)
+
+        if not cached_token or data["token"].strip() != str(cached_token):
+            raise ValidationError("Invalid or expired token.")
 
         try:
             user = User.objects.get(email=email)

@@ -3,12 +3,15 @@ from rest_framework.response import Response
 
 
 class CustomPageNumberPagination(PageNumberPagination):
-    page_size = 10  # Default page size
-    page_size_query_param = 'page_size'  # Allows dynamic page size
-    max_page_size = 100  # Optional: Prevents excessively large pages
+    page_size = 10  
+    page_size_query_param = 'page_size' 
+    max_page_size = 100  
     page_query_param = 'page'
 
     def get_paginated_response(self, data):
+        
+        # print("data: ", data)
+        print("data num:", len(data))
         return Response({
             'count': self.page.paginator.count,
             'total_pages': self.page.paginator.num_pages,

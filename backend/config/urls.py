@@ -11,10 +11,7 @@ urlpatterns = [
 
 
 if settings.DEBUG:
-    urlpatterns += [re_path(
-        r"^media/patients/files/(?P<id>\d+)\.pdf$",
-        ProtectedMediaView.as_view(),
-        name="protected_media",
-    )]
+    
 
     urlpatterns+= static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    

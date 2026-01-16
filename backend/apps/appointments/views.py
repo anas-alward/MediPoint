@@ -9,18 +9,18 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 
-
+from .paginations import AppointmentPagination
 from apps.users.tasks import send_email_template
 
 from .serializers import AppointmentSerializer, PaymentSerializer
 from .permissions import AppointmentPermissions, PaymentPermissions
 from .models import Appointment, WorkingHours, Payment
-
+from apps.users.pagination  import CustomPageNumberPagination
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
     permission_classes = [AppointmentPermissions]
-
+    pagination_class = CustomPageNumberPagination
     def get_serializer(self, *args, **kwargs):
         # Pass the request context to the serializer
         kwargs["context"] = {"request": self.request}

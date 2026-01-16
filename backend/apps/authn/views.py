@@ -1,4 +1,5 @@
 import random
+import secrets
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -9,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
-
+from apps.users.serializers import UserSerializer
 from apps.doctors.serializers import DoctorSerializer
 from apps.patients.serializers import PatientSerializer
 from apps.users.tasks import send_email_template
@@ -17,8 +18,10 @@ from .serializers import (
     CustomTokenObtainPairSerializer,
     RegisterSerializer,
     EmailVerificationSerializer,
+    EmailVerificationResendSerializer,
     PasswordChangeSerializer,
     PasswordResetRequestSerializer,
+    PasswordResetVerifySerializer,
     PasswordResetConfirmSerializer,
 )
 
@@ -105,11 +108,42 @@ class VerifyEmailView(APIView):
         cache_key = serializer.validated_data["cache_key"]
 
         user.is_email_verified = True
+        
         user.save(update_fields=["is_email_verified"])
         cache.delete(cache_key)
+        # we should return the user data after verification
+        return Response({"message": "Email verified successfully", "user":UserSerializer(user).data}, status=status.HTTP_200_OK)
 
-        return Response({"message": "Email verified successfully"})
 
+class ResendEmailVerificationView(APIView):
+    def post(self, request):
+        serializer = EmailVerificationResendSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data["user"]
+        email = serializer.validated_data["email"]
+
+        otp_ttl = getattr(settings, "EMAIL_VERIFICATION_OTP_TTL", 15 * 60)
+        otp = f"{random.randint(0, 999999):06d}"
+        cache_key = f"email_verification_otp:{email}"
+        cache.set(cache_key, otp, timeout=otp_ttl)
+
+        send_email_template.delay(
+            "Verify your MediPoint email",
+            "emails/verify_email_otp.html",
+            {
+                "user_name": user.full_name,
+                "otp": otp,
+                "expiry_minutes": int(otp_ttl / 60),
+                "support_email": "MediPoint@decodaai.com",
+            },
+            user.email,
+        )
+
+        return Response(
+            {"message": "Verification OTP resent. Please verify your email."},
+            status=status.HTTP_200_OK,
+        )
 
 
 class MeView(views.APIView):
@@ -278,6 +312,35 @@ class PasswordResetRequestView(views.APIView):
         )
 
 
+class PasswordResetVerifyView(views.APIView):
+    def post(self, request):
+        serializer = PasswordResetVerifySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data["user"]
+        otp_cache_key = serializer.validated_data["cache_key"]
+
+        reset_token = secrets.token_urlsafe(32)
+        token_cache_key = f"password_reset_token:{user.email.lower()}"
+        token_ttl = getattr(
+            settings,
+            "PASSWORD_RESET_TOKEN_TTL",
+            getattr(settings, "PASSWORD_RESET_OTP_TTL", 600),
+        )
+
+        cache.set(token_cache_key, reset_token, timeout=token_ttl)
+        cache.delete(otp_cache_key)
+
+        return Response(
+            {
+                "message": "OTP verified. Use the token to reset your password.",
+                "token": reset_token,
+                "expires_in": int(token_ttl),
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
 class PasswordResetConfirmView(views.APIView):
     def post(self, request):
         serializer = PasswordResetConfirmSerializer(data=request.data)
@@ -289,6 +352,7 @@ class PasswordResetConfirmView(views.APIView):
         user.set_password(serializer.validated_data['new_password'])
         user.save()
         cache.delete(cache_key)
+        cache.delete(f"password_reset_otp:{user.email.lower()}")
 
         return Response(
             {"message": "Password has been reset successfully."},

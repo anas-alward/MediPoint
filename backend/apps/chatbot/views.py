@@ -83,7 +83,7 @@ class ChatBotAPIView(APIView):
                 response["is_detected"] = True
                 response["doctors"] = DoctorListSerializer(doctors, many=True).data
 
-                 
+                print("response", response)
             return Response({"response": response}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(

@@ -1,4 +1,4 @@
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -6,6 +6,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from apps.patients.models import Patient
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import views
@@ -20,6 +21,7 @@ from rest_framework.decorators import action
 from apps.appointments.serializers import AppointmentSerializer
 from apps.appointments.models import Appointment
 from apps.reviews.models import Review
+from apps.users.models import User
 
 from .models import Doctor, Schedule, WorkingHours, Specialty
 from .permissions import IsOwnerOrReadOnly, IsDoctor
@@ -31,6 +33,8 @@ from .serializers import (
     SpecialtySerializer,
 )
 
+
+from datetime import timedelta
 
 class SpecialtyListAPIView(generics.ListAPIView):
     queryset = Specialty.objects.all()
@@ -61,23 +65,51 @@ class DoctorViewSets(viewsets.ReadOnlyModelViewSet):
             return Response(
                 {"error": "Doctor does not exist"}, status=status.HTTP_404_NOT_FOUND
             )
-        appointments = Appointment.objects.filter(doctor=doctor).select_related(
-            "working_hours"
+            
+        three_months_ago = timezone.now() - timedelta(days=90)
+        appointments = (
+            Appointment.objects.filter(
+                doctor=doctor,
+                working_hours__start_time__gte=three_months_ago,
+            )
+            .select_related("working_hours", "patient__user")
+        )
+        
+        gender_breakdown = (
+            appointments.values(
+                "working_hours",
+                "working_hours__start_time",
+                "working_hours__end_time",
+            )
+            .annotate(
+                female_patients=Count(
+                    "id",
+                    filter=Q(patient__user__gender=User.Genders.FEMALE),
+                ),
+                male_patients=Count(
+                    "id",
+                    filter=Q(patient__user__gender=User.Genders.MALE),
+                ),
+            )
+            .order_by("working_hours__start_time")
         )
         total_appointments = appointments.count()
         total_earning = appointments.aggregate(total_earnings=Sum("fees"))[
             "total_earnings"
         ]
+        
 
         total_patient = appointments.aggregate(
             total_patients=Count("patient", distinct=True)
         )["total_patients"]
+        
         latest_appointment = appointments.order_by("-working_hours__start_time")[:10]
-
+        
         dashboard_data = {
             "total_earnings": total_earning,
             "total_patients": total_patient,
             "total_appointments": total_appointments,
+            "appointments_by_working_hours": list(gender_breakdown),
             "latest_appointments": AppointmentSerializer(
                 latest_appointment, context={"request": self.request}, many=True
             ).data,
@@ -148,7 +180,6 @@ class DoctorInitAPIView(views.APIView):
         return Response(response_data)
 
 
-# dashboard/views.py
 
 
 class DashboardDataAPIView(APIView):
@@ -159,7 +190,7 @@ class DashboardDataAPIView(APIView):
         # last three months including current
         months = [(today - relativedelta(months=i)).month for i in range(2, -1, -1)]
         years = [(today - relativedelta(months=i)).year for i in range(2, -1, -1)]
-
+        doctor = request.user.doctor
         # Earnings per month (last 3 months)
         earnings_per_month = []
         for m, y in zip(months, years):
@@ -183,6 +214,12 @@ class DashboardDataAPIView(APIView):
             ) * 100
 
         # Total patients
+        
+        doctor_appointment = Appointment.objects.filter(doctor=doctor, )
+        patient_ids = doctor_appointment.values_list("patient_id", flat=True)
+        
+        print("patient_ids", patient_ids)
+        
         total_patients = Patient.objects.count()
 
         # Total appointments this month
@@ -203,9 +240,7 @@ class DashboardDataAPIView(APIView):
 
         data = {
             "total_earnings": earnings_per_month[-1],
-            "earnings_trend": round(trend_earnings, 2),
             "total_patients": total_patients,
             "total_appointments": total_appointments,
-            "appointments_trend": round(trend_appointments, 2),
         }
         return Response(data)

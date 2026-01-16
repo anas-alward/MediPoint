@@ -12,6 +12,16 @@ class DoctorListSerializer(serializers.ModelSerializer):
     user = UserSerializer(many=False)
     specialty = serializers.StringRelatedField()
 
+    class Meta:
+        model = Doctor
+        fields = [
+            "user",
+            "specialty",
+            "experience",
+            "fees",
+            "rating",
+        ]
+    
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule

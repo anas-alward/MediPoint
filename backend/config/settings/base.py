@@ -168,7 +168,6 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "apps.users.pagination.CustomPageNumberPagination",
-    "PAGE_SIZE_QUERY_PARAM": "page_size",  # Allows dynamic page size from frontend
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Ensure session data is stored
