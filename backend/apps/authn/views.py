@@ -23,6 +23,8 @@ from .serializers import (
     PasswordResetRequestSerializer,
     PasswordResetVerifySerializer,
     PasswordResetConfirmSerializer,
+    DoctorMeSerializer,
+    PatientMeSerializer,
 )
 
 User = get_user_model()
@@ -32,8 +34,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
-
-
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
@@ -41,14 +41,19 @@ class RegisterView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         email = request.data.get("email", "").strip().lower()
         if not email:
-            return Response({"message": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Email is required."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         existing_user = User.objects.filter(email=email).first()
         otp_ttl = getattr(settings, "EMAIL_VERIFICATION_OTP_TTL", 15 * 60)
 
         if existing_user:
             if existing_user.is_email_verified:
-                return Response({"message": "User already registered."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "User already registered."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             otp = f"{random.randint(0, 999999):06d}"
             cache_key = f"email_verification_otp:{email}"
@@ -95,8 +100,9 @@ class RegisterView(generics.CreateAPIView):
         )
 
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
 
 class VerifyEmailView(APIView):
@@ -108,11 +114,17 @@ class VerifyEmailView(APIView):
         cache_key = serializer.validated_data["cache_key"]
 
         user.is_email_verified = True
-        
+
         user.save(update_fields=["is_email_verified"])
         cache.delete(cache_key)
         # we should return the user data after verification
-        return Response({"message": "Email verified successfully", "user":UserSerializer(user).data}, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "message": "Email verified successfully",
+                "user": UserSerializer(user).data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class ResendEmailVerificationView(APIView):
@@ -250,12 +262,71 @@ class MeView(views.APIView):
             try:
                 serializer.save()
                 # Return the serialized data of the updated object
-                return Response(
-                    serializer.data, 
-                    status=status.HTTP_200_OK
-                )
+                return Response(serializer.data, status=status.HTTP_200_OK)
             except ValueError as e:
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "Invalid data provided.", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class DoctorMeView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not request.user.is_doctor or not hasattr(request.user, "doctor"):
+            return Response(
+                {"detail": "User is not a doctor."}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = DoctorMeSerializer(request.user.doctor)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        if not request.user.is_doctor or not hasattr(request.user, "doctor"):
+            return Response(
+                {"detail": "User is not a doctor."}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = DoctorMeSerializer(
+            request.user.doctor, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(
+            {"detail": "Invalid data provided.", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class PatientMeView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not request.user.is_patient or not hasattr(request.user, "patient"):
+            return Response(
+                {"detail": "User is not a patient."}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = PatientMeSerializer(request.user.patient)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        if not request.user.is_patient or not hasattr(request.user, "patient"):
+            return Response(
+                {"detail": "User is not a patient."}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = PatientMeSerializer(
+            request.user.patient, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
         return Response(
             {"detail": "Invalid data provided.", "errors": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
@@ -267,11 +338,15 @@ class PasswordChangeView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data, context={"request": request})
+        serializer = self.get_serializer(
+            data=request.data, context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
         request.user.set_password(serializer.validated_data["new_password"])
         request.user.save()
-        return Response({"detail": "Password updated successfully"}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Password updated successfully"}, status=status.HTTP_200_OK
+        )
 
 
 class PasswordResetRequestView(views.APIView):
@@ -349,7 +424,7 @@ class PasswordResetConfirmView(views.APIView):
         user = serializer.validated_data["user"]
         cache_key = serializer.validated_data["cache_key"]
 
-        user.set_password(serializer.validated_data['new_password'])
+        user.set_password(serializer.validated_data["new_password"])
         user.save()
         cache.delete(cache_key)
         cache.delete(f"password_reset_otp:{user.email.lower()}")

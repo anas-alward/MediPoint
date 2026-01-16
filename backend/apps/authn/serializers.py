@@ -1,4 +1,3 @@
-
 from django.contrib.auth.password_validation import validate_password
 from django.core.cache import cache
 from rest_framework import serializers
@@ -8,12 +7,14 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from apps.users.models import User
 from apps.users.serializers import UserSerializer
+from apps.doctors.models import Doctor
+from apps.patients.models import Patient
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         request = self.context["request"]
- 
+
         # Step 1: Call parent validate to set self.user
         data = super().validate(attrs)  # ✅ self.user is now available
         print("HI")
@@ -21,7 +22,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not self.user.is_active:
             raise ValidationError("Account is inactive.")
         if not self.user.is_email_verified:
-            raise ValidationError("Email is not verified. Please verify your email before logging in.")
+            raise ValidationError(
+                "Email is not verified. Please verify your email before logging in."
+            )
 
         # Step 2: Ensure a session exists
         if not request.session.session_key:
@@ -147,6 +150,7 @@ class PasswordChangeSerializer(serializers.Serializer):
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
+
 class PasswordResetConfirmSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
@@ -192,3 +196,91 @@ class PasswordResetVerifySerializer(serializers.Serializer):
         data["user"] = user
         data["cache_key"] = cache_key
         return data
+
+
+class DoctorMeSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source="user.id", read_only=True)
+    role = serializers.CharField(source="user.role", read_only=True)
+    email = serializers.EmailField(source="user.email", read_only=True)
+    full_name = serializers.CharField(source="user.full_name", required=False)
+    image = serializers.ImageField(source="user.image", required=False, allow_null=True)
+    gender = serializers.CharField(
+        source="user.gender", required=False, allow_blank=True, allow_null=True
+    )
+    dob = serializers.DateField(source="user.dob", required=False, allow_null=True)
+
+    class Meta:
+        model = Doctor
+        fields = [
+            "id",
+            "role",
+            "email",
+            "full_name",
+            "image",
+            "gender",
+            "dob",
+            "fees",
+            "experience",
+            "education",
+            "about",
+            "status",
+            "specialty",
+            "address_line1",
+            "address_line2",
+            "is_verified",
+            "degree_document",
+            "rating",
+            "reviewers_num",
+        ]
+        read_only_fields = ["is_verified", "rating", "reviewers_num"]
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user", {})
+
+        for attr, value in user_data.items():
+            setattr(instance.user, attr, value)
+
+        if user_data:
+            instance.user.save()
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
+
+class PatientMeSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source="user.id", read_only=True)
+    role = serializers.CharField(source="user.role", read_only=True)
+    email = serializers.EmailField(source="user.email", read_only=True)
+    full_name = serializers.CharField(source="user.full_name", required=False)
+    image = serializers.ImageField(source="user.image", required=False, allow_null=True)
+    gender = serializers.CharField(
+        source="user.gender", required=False, allow_blank=True, allow_null=True
+    )
+    dob = serializers.DateField(source="user.dob", required=False, allow_null=True)
+
+    class Meta:
+        model = Patient
+        fields = [
+            "id",
+            "role",
+            "email",
+            "full_name",
+            "image",
+            "gender",
+            "dob",
+        ]
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user", {})
+
+        for attr, value in user_data.items():
+            setattr(instance.user, attr, value)
+
+        if user_data:
+            instance.user.save()
+
+        instance.save()
+        return instance

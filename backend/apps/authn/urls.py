@@ -14,6 +14,8 @@ from .views import (
     PasswordResetConfirmView,
     VerifyEmailView,
     ResendEmailVerificationView,
+    DoctorMeView,
+    PatientMeView,
 )
 
 urlpatterns = [
@@ -36,6 +38,8 @@ urlpatterns = [
         PasswordResetConfirmView.as_view(),
         name="reset_password_confirm",
     ),
+    path("me/doctor/", DoctorMeView.as_view(), name="doctor_me"),
+    path("me/patient/", PatientMeView.as_view(), name="patient_me"),
     path("me/", MeView.as_view()),
     path("register/", RegisterView.as_view()),
     path("verify-email/", VerifyEmailView.as_view(), name="verify_email"),

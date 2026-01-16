@@ -145,7 +145,26 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             # Convert Django's ValidationError to DRF's ValidationError
             raise serializers.ValidationError(e.message_dict)
+        
+    @action(detail=False, methods=["delete"], url_path="bulk-delete")
+    def bulk_delete(self, request):
+        ids = request.data.get("ids", [])
 
+        if not ids:
+            return Response(
+                {"error": "No IDs provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # We use self.get_queryset() to ensure the doctor
+        # can only delete THEIR own schedules.
+        queryset = self.get_queryset().filter(id__in=ids)
+
+        deleted_count, _ = queryset.delete()
+
+        return Response(
+            {"message": f"Successfully deleted {deleted_count} schedules."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
 class WorkingHoursViewSet(viewsets.ModelViewSet):
     serializer_class = WorkingHoursSerializer

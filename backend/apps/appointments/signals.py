@@ -30,3 +30,16 @@ def send_new_appointment_email_to_doctor(sender, instance, created, **kwargs):
         }, 
         to_email=appointment.doctor.user.email
     )
+    
+# create new payment record when appointment is created
+@receiver(post_save, sender=Appointment)
+def create_payment_record_for_appointment(sender, instance, created, **kwargs):
+    if created:
+        from .models import Payment  # Import here to avoid circular imports
+        Payment.objects.create(
+            appointment=instance,
+            amount=instance.fees,
+            currency='usd',  # Default currency, adjust as needed
+            # payment_type=Payment.PaymentType.STRIPE,  # Default payment type
+            status=Payment.Status.PENDING  # Initial status
+        )
