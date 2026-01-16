@@ -30,11 +30,18 @@ class PatientFolderSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "patient", "created_at", "updated_at"]
 
    
-   
+
+
 class PatientFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientFile
         fields = ["id", "name", "file", "folder", "created_at", "updated_at"]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "folder", "created_at", "updated_at"]
 
-   
+    def __init__(self, *args, **kwargs):
+        super(PatientFileSerializer, self).__init__(*args, **kwargs)
+        
+        # If we are updating (the instance is present)
+        if self.instance is not None:
+            self.fields['name'].required = False
+            self.fields['file'].required = False
