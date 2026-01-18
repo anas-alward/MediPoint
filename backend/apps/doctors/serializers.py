@@ -1,12 +1,16 @@
 from rest_framework import serializers
-from .models import Doctor, Specialty, Schedule, WorkingHours
+from django.utils import timezone
+from .models import Doctor, Specialty, Schedule, WorkingHours, PatientReport
+from apps.patients.models import Patient
 from apps.users.serializers import UserSerializer
 from apps.reviews.serializers import ReviewSerializer
+
 
 class WorkingHoursSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkingHours
         fields = ["id", "start_time", "end_time", "doctor", "patient_left"]
+
 
 class DoctorListSerializer(serializers.ModelSerializer):
     user = UserSerializer(many=False)
@@ -21,7 +25,8 @@ class DoctorListSerializer(serializers.ModelSerializer):
             "fees",
             "rating",
         ]
-    
+
+
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
@@ -29,8 +34,9 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # Automatically assign the doctor from the context (logged-in user)
-        doctor = self.context['request'].user.doctor
+        doctor = self.context["request"].user.doctor
         return Schedule.objects.create(doctor=doctor, **validated_data)
+
 
 class SpecialtySerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,6 +48,7 @@ class DoctorSerializer(serializers.ModelSerializer):
     working_hours = WorkingHoursSerializer(read_only=True, many=True)
     user = UserSerializer(many=False)
     reviews = ReviewSerializer(many=True)
+
     class Meta:
         model = Doctor
         fields = [
@@ -87,14 +94,14 @@ class DoctorSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # Handle nested user updates
         user_data = validated_data.pop("user", None)
-        
+
         if user_data:
             user_serializer = UserSerializer(
                 instance.user, data=user_data, partial=True
             )
             if user_serializer.is_valid():
                 user_serializer.save()
-        
+
         # Update Doctor fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -120,3 +127,36 @@ class DoctorSerializer(serializers.ModelSerializer):
                 None  # Handle the case where specialty is null
             )
         return representation
+
+
+class PatientReportSerializer(serializers.ModelSerializer):
+    doctor = serializers.PrimaryKeyRelatedField(read_only=True)
+    patient = serializers.PrimaryKeyRelatedField(queryset=Patient.objects.all())
+
+    class Meta:
+        model = PatientReport
+        fields = ["id", "doctor", "patient", "reason", "created_at"]
+        read_only_fields = ["id", "doctor", "created_at"]
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        validated_data["doctor"] = request.user.doctor
+        return super().create(validated_data)
+
+    def validate(self, attrs):
+        request = self.context.get("request")
+        doctor = getattr(request.user, "doctor", None)
+        patient = attrs.get("patient")
+        today = timezone.now().date()
+
+        if doctor and patient:
+            exists = PatientReport.objects.filter(
+                doctor=doctor,
+                patient=patient,
+                created_at__date=today,
+            ).exists()
+            if exists:
+                raise serializers.ValidationError(
+                    "You can submit only one report per patient per day."
+                )
+        return attrs

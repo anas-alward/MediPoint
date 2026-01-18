@@ -2,9 +2,7 @@ from django.db.models import Sum, Count, Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from apps.patients.models import Patient
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -13,17 +11,15 @@ from rest_framework import views
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework import serializers
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
+
 from rest_framework import status
 from rest_framework.decorators import action
 
 from apps.appointments.serializers import AppointmentSerializer
 from apps.appointments.models import Appointment
-from apps.reviews.models import Review
 from apps.users.models import User
 
-from .models import Doctor, Schedule, WorkingHours, Specialty
+from .models import Doctor, Schedule, WorkingHours, Specialty, PatientReport
 from .permissions import IsOwnerOrReadOnly, IsDoctor
 from .filters import DoctorFilter
 from .serializers import (
@@ -31,10 +27,12 @@ from .serializers import (
     ScheduleSerializer,
     WorkingHoursSerializer,
     SpecialtySerializer,
+    PatientReportSerializer,
 )
 
 
 from datetime import timedelta
+
 
 class SpecialtyListAPIView(generics.ListAPIView):
     queryset = Specialty.objects.all()
@@ -65,16 +63,13 @@ class DoctorViewSets(viewsets.ReadOnlyModelViewSet):
             return Response(
                 {"error": "Doctor does not exist"}, status=status.HTTP_404_NOT_FOUND
             )
-            
+
         three_months_ago = timezone.now() - timedelta(days=90)
-        appointments = (
-            Appointment.objects.filter(
-                doctor=doctor,
-                working_hours__start_time__gte=three_months_ago,
-            )
-            .select_related("working_hours", "patient__user")
-        )
-        
+        appointments = Appointment.objects.filter(
+            doctor=doctor,
+            working_hours__start_time__gte=three_months_ago,
+        ).select_related("working_hours", "patient__user")
+
         gender_breakdown = (
             appointments.values(
                 "working_hours",
@@ -97,14 +92,13 @@ class DoctorViewSets(viewsets.ReadOnlyModelViewSet):
         total_earning = appointments.aggregate(total_earnings=Sum("fees"))[
             "total_earnings"
         ]
-        
 
         total_patient = appointments.aggregate(
             total_patients=Count("patient", distinct=True)
         )["total_patients"]
-        
+
         latest_appointment = appointments.order_by("-working_hours__start_time")[:10]
-        
+
         dashboard_data = {
             "total_earnings": total_earning,
             "total_patients": total_patient,
@@ -145,7 +139,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             # Convert Django's ValidationError to DRF's ValidationError
             raise serializers.ValidationError(e.message_dict)
-        
+
     @action(detail=False, methods=["delete"], url_path="bulk-delete")
     def bulk_delete(self, request):
         ids = request.data.get("ids", [])
@@ -166,6 +160,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             status=status.HTTP_204_NO_CONTENT,
         )
 
+
 class WorkingHoursViewSet(viewsets.ModelViewSet):
     serializer_class = WorkingHoursSerializer
 
@@ -176,6 +171,26 @@ class WorkingHoursViewSet(viewsets.ModelViewSet):
             return qs.filter(doctor_id=doctor_pk)
 
         return qs
+
+    @action(detail=False, methods=["delete"], url_path="bulk-delete")
+    def bulk_delete(self, request):
+        ids = request.data.get("ids", [])
+
+        if not ids:
+            return Response(
+                {"error": "No IDs provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # We use self.get_queryset() to ensure the doctor
+        # can only delete THEIR own schedules.
+        queryset = self.get_queryset().filter(id__in=ids)
+
+        deleted_count, _ = queryset.delete()
+
+        return Response(
+            {"message": f"Successfully deleted {deleted_count} schedules."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
 
 class DoctorInitAPIView(views.APIView):
@@ -199,67 +214,84 @@ class DoctorInitAPIView(views.APIView):
         return Response(response_data)
 
 
-
-
 class DashboardDataAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        today = datetime.today()
-        # last three months including current
-        months = [(today - relativedelta(months=i)).month for i in range(2, -1, -1)]
-        years = [(today - relativedelta(months=i)).year for i in range(2, -1, -1)]
-        doctor = request.user.doctor
-        # Earnings per month (last 3 months)
-        earnings_per_month = []
-        for m, y in zip(months, years):
-            total = (
-                Appointment.objects.filter(
-                    doctor_id=request.user.id,
-                    created_at__year=y,
-                    created_at__month=m,
-                    status=Appointment.Status.PAID,
-                ).aggregate(total=Sum("fees"))["total"]
-                or 0
-            )
-            earnings_per_month.append(total)
+        now = timezone.now()
 
-        # Trend calculation for earnings
-        trend_earnings = 0
-        if len(earnings_per_month) >= 2 and earnings_per_month[-2] != 0:
-            trend_earnings = (
-                (earnings_per_month[-1] - earnings_per_month[-2])
-                / earnings_per_month[-2]
-            ) * 100
+        start_current_month = now.replace(
+            day=1, hour=0, minute=0, second=0, microsecond=0
+        )
+        start_next_month = start_current_month + relativedelta(months=1)
+        start_three_months_ago = start_current_month - relativedelta(months=3)
 
-        # Total patients
-        
-        doctor_appointment = Appointment.objects.filter(doctor=doctor, )
-        patient_ids = doctor_appointment.values_list("patient_id", flat=True)
-        
-        print("patient_ids", patient_ids)
-        
-        total_patients = Patient.objects.count()
+        paid_appointments = Appointment.objects.filter(
+            doctor__user=request.user,
+            created_at__gte=start_three_months_ago,
+            created_at__lt=start_next_month,
+        )
 
-        # Total appointments this month
-        total_appointments = Appointment.objects.filter(
-            created_at__month=today.month, created_at__year=today.year
-        ).count()
+        earnings_this_month = (
+            paid_appointments.aggregate(total=Sum("fees"))["total"] or 0
+        )
 
-        # Appointments trend
-        appointments_last_month = Appointment.objects.filter(
-            created_at__month=(today - relativedelta(months=1)).month,
-            created_at__year=(today - relativedelta(months=1)).year,
-        ).count()
-        trend_appointments = 0
-        if appointments_last_month != 0:
-            trend_appointments = (
-                (total_appointments - appointments_last_month) / appointments_last_month
-            ) * 100
+        # ---------------------------------------------
+        # 1. Build ALL dates with zero values
+        # ---------------------------------------------
+        date_cursor = start_three_months_ago.date()
+        end_date = start_next_month.date()
+
+        summary = {}
+        while date_cursor < end_date:
+            date_str = date_cursor.isoformat()
+            summary[date_str] = {"M": set(), "F": set()}
+            date_cursor += timedelta(days=1)
+
+        # ---------------------------------------------
+        # 2. Fill real data (unique patients)
+        # ---------------------------------------------
+        patients_data = paid_appointments.values_list(
+            "patient__user__id",
+            "patient__user__gender",
+            "created_at",
+        )
+
+        unique_patients = set()
+
+        for patient_id, gender, created_at in patients_data:
+            date_str = created_at.date().isoformat()
+            summary[date_str][gender].add(patient_id)
+            unique_patients.add(patient_id)
+
+        # ---------------------------------------------
+        # 3. Serialize for response
+        # ---------------------------------------------
+        patients_summary = [
+            {
+                "date": date,
+                "M": len(counts["M"]),
+                "F": len(counts["F"]),
+            }
+            for date, counts in sorted(summary.items())
+        ]
 
         data = {
-            "total_earnings": earnings_per_month[-1],
-            "total_patients": total_patients,
-            "total_appointments": total_appointments,
+            "total_earnings": earnings_this_month,
+            "total_patients": len(unique_patients),  # UNIQUE patients
+            "patients_summary": patients_summary,  # FULL timeline
+            "total_appointments": paid_appointments.count(),
         }
+
         return Response(data)
+
+
+class PatientReportViewSet(viewsets.ModelViewSet):
+    serializer_class = PatientReportSerializer
+    permission_classes = [IsAuthenticated, IsDoctor]
+
+    def get_queryset(self):
+        return PatientReport.objects.filter(doctor=self.request.user.doctor)
+
+    def perform_create(self, serializer):
+        serializer.save()

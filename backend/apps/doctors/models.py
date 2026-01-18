@@ -5,6 +5,7 @@ from django.utils.timezone import now
 from model_utils.managers import QueryManager
 
 from apps.users.models import User
+from apps.patients.models import Patient
 
 
 class Doctor(models.Model):
@@ -150,3 +151,18 @@ class WorkingHours(models.Model):
         # Call the clean method before saving
         self.clean()
         super().save(*args, **kwargs)
+
+
+class PatientReport(models.Model):
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="reports")
+    patient = models.ForeignKey(
+        Patient, on_delete=models.CASCADE, related_name="reports"
+    )
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Report by {self.doctor} on {self.patient}"

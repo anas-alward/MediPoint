@@ -20,5 +20,12 @@
   },
   "peacock.remoteColor": "green",
   "svg.preview.background": "custom",
-  "cSpell.words": ["ANYMAIL", "DBBACKUP", "medipoint", "topmenu", "usermenu"]
+  "cSpell.words": [
+    "ANYMAIL",
+    "DBBACKUP",
+    "medipoint",
+    "relativedelta",
+    "topmenu",
+    "usermenu"
+  ]
 }

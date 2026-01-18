@@ -67,3 +67,5 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_patient(self):
         return self.role == User.Roles.PATIENT
+
+

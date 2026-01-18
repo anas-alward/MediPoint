@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib import messages
 
 from apps.users.tasks import send_email_template
-from .models import Doctor, Specialty, Schedule, WorkingHours
+from .models import Doctor, Specialty, Schedule, WorkingHours, PatientReport
 from .forms import ScheduleTabularInlineModelForm
 
 @admin.register(Specialty)
@@ -24,7 +24,13 @@ class ScheduleInline(admin.TabularInline):
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
     list_display = ['start_time', 'end_time', 'day','doctor']
-    
+
+@admin.register(PatientReport)
+class PatientReportAdmin(admin.ModelAdmin):
+    list_display = ['doctor', 'patient', 'reason', 'created_at']
+    list_filter = ['doctor__user__full_name', 'created_at']
+    search_fields = ['doctor__user__full_name', 'patient__user__full_name', 'reason']
+
 @admin.register(WorkingHours)
 class WorkingHoursAdmin(admin.ModelAdmin):
     list_display = ['start_time', 'end_time','doctor']

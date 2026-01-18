@@ -13,8 +13,8 @@ class Appointment(models.Model):
         DONE = 'D' , 'Done'
         MISSED = 'M' , 'Missed'
         CANCELLED = 'C' , 'Cancelled'
-        DELAYED = 'DE', 'Delayed'
-        PAYMENT_FAILED = 'PF', 'Payment Failed'
+        # DELAYED = 'DE', 'Delayed'
+        # PAYMENT_FAILED = 'PF', 'Payment Failed'
         
     patient = models.ForeignKey(
         Patient,
@@ -36,7 +36,7 @@ class Appointment(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     additional_info = models.TextField(blank=True, null=True)
-    payment_id = models.CharField(max_length=100, blank=True, null=True)
+    # payment_id = models.CharField(max_length=100, blank=True, null=True)
     
     
         
@@ -67,8 +67,6 @@ class Payment(models.Model):
     class Status(models.TextChoices):
         PENDING = "pending", "Pending"
         SUCCEEDED = "succeeded", "Succeeded"
-        FAILED = "failed", "Failed"
-        CANCELED = "canceled", "Canceled"
         REFUNDED = "refunded", "Refunded"
 
     appointment = models.OneToOneField(
@@ -79,7 +77,7 @@ class Payment(models.Model):
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     currency = models.CharField(max_length=10, default="usd")
     payment_type = models.CharField(
-        max_length=20, choices=PaymentType.choices, default=PaymentType.STRIPE
+        max_length=20, choices=PaymentType.choices, default=PaymentType.MANUAL
     )
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.PENDING
