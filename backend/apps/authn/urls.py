@@ -36,7 +36,7 @@ urlpatterns = [
     ),
     path(
         "password/reset/confirm/",
-        PasswordResetConfirmView.as_view(),
+        PasswordResetVerifyView.as_view(),
         name="reset_password_confirm",
     ),
     path("me/doctor/", DoctorMeView.as_view(), name="doctor_me"),

@@ -173,8 +173,11 @@ class WorkingHoursViewSet(viewsets.ModelViewSet):
         doctor_pk = self.kwargs.get("doctor_pk")
         if doctor_pk:
             return qs.filter(doctor_id=doctor_pk)
-
-        return qs
+        
+        if self.request.user.is_doctor:
+            return qs.filter(doctor=self.request.user.doctor)
+            
+        return qs  
 
     @action(detail=False, methods=["delete"], url_path="bulk-delete")
     def bulk_delete(self, request):

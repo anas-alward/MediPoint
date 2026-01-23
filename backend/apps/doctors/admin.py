@@ -39,9 +39,12 @@ class PatientReportAdmin(admin.ModelAdmin):
 
 @admin.register(WorkingHours)
 class WorkingHoursAdmin(admin.ModelAdmin):
-    list_display = ["start_time", "end_time", "doctor"]
-    list_filter = ["doctor__user__full_name"]
-    search_fields = ["doctor"]
+    list_display = ['start_time', 'end_time','doctor', 'id']
+    list_filter = ['doctor__user__full_name', 'id']
+    search_fields = ['id']
+
+
+
 
 
 @admin.action(description="Verify selected doctors")
