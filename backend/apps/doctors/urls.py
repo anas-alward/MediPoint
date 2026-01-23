@@ -6,6 +6,7 @@ from .views import (
     DoctorInitAPIView,
     DashboardDataAPIView,
     PatientReportViewSet,
+    DegreeDocumentUploadAPIView,
 )
 from rest_framework_nested.routers import NestedSimpleRouter
 from rest_framework.routers import DefaultRouter
@@ -29,6 +30,7 @@ nested_router.register(r"reviews", ReviewsViewSet, basename="doctor-reviews")
 doctor_routes = [
     path("doctors/init/", DoctorInitAPIView.as_view()),
     path("doctors/dashboard/", DashboardDataAPIView.as_view()),
+    path("doctors/degree/upload/", DegreeDocumentUploadAPIView.as_view()),
     path("", include(router.urls)),
     path("", include(nested_router.urls)),
     path("specialties/", SpecialtyListAPIView.as_view()),

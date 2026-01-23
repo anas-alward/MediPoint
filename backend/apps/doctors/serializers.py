@@ -160,3 +160,14 @@ class PatientReportSerializer(serializers.ModelSerializer):
                     "You can submit only one report per patient per day."
                 )
         return attrs
+
+
+class DegreeDocumentUploadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = ["degree_document"]
+
+    def validate_degree_document(self, value):
+        if not value:
+            raise serializers.ValidationError("degree_document is required.")
+        return value

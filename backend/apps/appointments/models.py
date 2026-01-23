@@ -77,7 +77,7 @@ class Payment(models.Model):
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     currency = models.CharField(max_length=10, default="usd")
     payment_type = models.CharField(
-        max_length=20, choices=PaymentType.choices, default=PaymentType.MANUAL
+        max_length=20, choices=PaymentType.choices, default=PaymentType.STRIPE
     )
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.PENDING
