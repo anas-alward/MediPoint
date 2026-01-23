@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from apps.doctors.serializers import DoctorSerializer
 from apps.patients.serializers import PatientSerializer
+from apps.doctors.models import WorkingHours
 
 from .models import Appointment, Payment
 
@@ -112,3 +113,18 @@ class AppointmentSerializer(serializers.ModelSerializer):
                         "Doctors can only update the status field."
                     )
         return data
+
+
+class ManualAppointmentCreateSerializer(serializers.Serializer):
+    full_name = serializers.CharField(max_length=255)
+    email = serializers.EmailField()
+    working_hours = serializers.PrimaryKeyRelatedField(
+        queryset=WorkingHours.objects.all()
+    )
+    additional_info = serializers.CharField(required=False, allow_blank=True)
+
+    def validate_working_hours(self, value):
+        # Ensure there is capacity left
+        if not value.patient_left:
+            raise serializers.ValidationError("This working hours is at capacity.")
+        return value

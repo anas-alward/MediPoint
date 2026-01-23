@@ -12,15 +12,23 @@ from rest_framework import viewsets
 from .paginations import AppointmentPagination
 from apps.users.tasks import send_email_template
 
-from .serializers import AppointmentSerializer, PaymentSerializer
+from .serializers import (
+    AppointmentSerializer,
+    ManualAppointmentCreateSerializer,
+    PaymentSerializer,
+)
 from .permissions import AppointmentPermissions, PaymentPermissions
 from .models import Appointment, WorkingHours, Payment
-from apps.users.pagination  import CustomPageNumberPagination
+from apps.users.pagination import CustomPageNumberPagination
+from apps.users.models import User
+from apps.patients.models import Patient
+
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
     permission_classes = [AppointmentPermissions]
     pagination_class = CustomPageNumberPagination
+
     def get_serializer(self, *args, **kwargs):
         # Pass the request context to the serializer
         kwargs["context"] = {"request": self.request}
@@ -29,9 +37,17 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_patient:
-            return Appointment.objects.filter(patient=user.patient).select_related("doctor").order_by('-created_at')
+            return (
+                Appointment.objects.filter(patient=user.patient)
+                .select_related("doctor")
+                .order_by("-created_at")
+            )
         elif user.is_doctor:
-            return Appointment.objects.filter(doctor=user.doctor).select_related("patient").order_by('-created_at')
+            return (
+                Appointment.objects.filter(doctor=user.doctor)
+                .select_related("patient")
+                .order_by("-created_at")
+            )
         return Appointment.objects.none()
 
     def perform_create(self, serializer):
@@ -65,35 +81,90 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             return Response(
                 {"message": f"{str(e)}"}, status=status.HTTP_400_BAD_REQUEST
             )
-            
 
         if request.user.is_doctor:
             send_email_template.delay(
                 "Appointment Cancellation by Doctor",
                 "emails/appointment_cancelled_patient.html",
                 context={
-                    "patient_name":appointment.patient.user.full_name,
-                    "doctor_name":appointment.doctor.user.full_name,
-                    "support_email":"MediPoint@decodaai.com",
-                    "support_phone":"+123456789"
+                    "patient_name": appointment.patient.user.full_name,
+                    "doctor_name": appointment.doctor.user.full_name,
+                    "support_email": "MediPoint@decodaai.com",
+                    "support_phone": "+123456789",
                 },
-                to_email=appointment.patient.user.email
+                to_email=appointment.patient.user.email,
             )
         elif request.user.is_patient:
             send_email_template.delay(
                 "Appointment Cancellation by Patient",
                 "emails/appointment_cancelled_doctor.html",
                 context={
-                    "patient_name":appointment.patient.user.full_name,
-                    "doctor_name":appointment.doctor.user.full_name,
-                    "appointment_date_time":appointment.working_hours.start_time
+                    "patient_name": appointment.patient.user.full_name,
+                    "doctor_name": appointment.doctor.user.full_name,
+                    "appointment_date_time": appointment.working_hours.start_time,
                 },
-                to_email=appointment.doctor.user.email
+                to_email=appointment.doctor.user.email,
             )
 
         return Response({"message": "Appointment canceled"}, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=["post"], url_path="manual-create-by-doctor")
+    def manual_create_by_doctor(self, request):
+        """Allow doctors to manually create an appointment for a patient by email/name."""
 
+        if not request.user.is_doctor:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        serializer = ManualAppointmentCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        working_hours = data["working_hours"]
+
+        # Doctor can only book their own working hours
+        if working_hours.doctor != request.user.doctor:
+            return Response(
+                {"detail": "You can only create appointments for your own slots."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        # Resolve or create user/patient
+        user = User.objects.filter(email__iexact=data["email"]).first()
+        patient_created = False
+
+        if user:
+            if not hasattr(user, "patient"):
+                patient = Patient.objects.create(user=user)
+            else:
+                patient = user.patient
+        else:
+            user = User.objects.create_user(
+                email=data["email"],
+                password=None,
+                full_name=data["full_name"],
+                role=User.Roles.PATIENT,
+            )
+            user.set_unusable_password()
+            user.save(update_fields=["password", "role", "full_name", "email"])
+            patient = Patient.objects.create(user=user)
+            patient_created = True
+
+        appointment = Appointment(
+            patient=patient,
+            doctor=request.user.doctor,
+            working_hours=working_hours,
+            fees=working_hours.doctor.fees,
+        )
+        appointment._payment_type = Payment.PaymentType.MANUAL
+        appointment.save()
+
+
+        response_data = AppointmentSerializer(
+            appointment, context={"request": request}
+        ).data
+        response_data.update({"patient_created": patient_created})
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"], url_path="create-payment-intent")
     def create_payment_intent(self, request, pk=None):
@@ -102,7 +173,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         if appointment.patient != request.user.patient:
             return Response(status=403)
 
-        stripe.api_key = settings.STRIPE_SECRET_KEY 
+        stripe.api_key = settings.STRIPE_SECRET_KEY
 
         payment, _ = Payment.objects.get_or_create(
             appointment=appointment,
@@ -138,12 +209,14 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         payment.metadata = dict(intent.metadata)
         payment.save(update_fields=["provider_payment_id", "metadata", "updated_at"])
 
-        return Response(
-            {"client_secret": intent.client_secret},
-            status=200
-        )
+        return Response({"client_secret": intent.client_secret}, status=200)
 
-    @action(detail=True, methods=["post"], url_path="manual-payment", permission_classes=[AppointmentPermissions])
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="manual-payment",
+        permission_classes=[AppointmentPermissions],
+    )
     def manual_payment(self, request, pk=None):
         appointment = self.get_object()
 
@@ -174,7 +247,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             status=status_value,
             provider_payment_id=reference,
             metadata=metadata,
-            paid_at=timezone.now() if status_value == Payment.Status.SUCCEEDED else None,
+            paid_at=timezone.now()
+            if status_value == Payment.Status.SUCCEEDED
+            else None,
         )
 
         if payment.status == Payment.Status.SUCCEEDED:
@@ -194,7 +269,10 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
         try:
             appointment.complete()
-            return Response({"status": "Appointment completed successfully"}, status=status.HTTP_200_OK)
+            return Response(
+                {"status": "Appointment completed successfully"},
+                status=status.HTTP_200_OK,
+            )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -244,7 +322,9 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
         if payment.status == Payment.Status.SUCCEEDED:
             appointment.status = Appointment.Status.PAID
-            appointment.payment_id = payment.provider_payment_id or appointment.payment_id
+            appointment.payment_id = (
+                payment.provider_payment_id or appointment.payment_id
+            )
             appointment.save(update_fields=["status", "payment_id"])
 
     def perform_update(self, serializer):
@@ -259,7 +339,9 @@ class PaymentViewSet(viewsets.ModelViewSet):
             appointment = payment.appointment
             if payment.status == Payment.Status.SUCCEEDED:
                 appointment.status = Appointment.Status.PAID
-                appointment.payment_id = payment.provider_payment_id or appointment.payment_id
+                appointment.payment_id = (
+                    payment.provider_payment_id or appointment.payment_id
+                )
                 appointment.save(update_fields=["status", "payment_id"])
             elif payment.status == Payment.Status.FAILED:
                 appointment.status = Appointment.Status.PAYMENT_FAILED
@@ -276,5 +358,3 @@ class PaymentViewSet(viewsets.ModelViewSet):
             appointment.status = Appointment.Status.PENDING
         appointment.payment_id = None
         appointment.save(update_fields=["status", "payment_id"])
-    
-    

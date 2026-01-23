@@ -36,10 +36,19 @@ def send_new_appointment_email_to_doctor(sender, instance, created, **kwargs):
 def create_payment_record_for_appointment(sender, instance, created, **kwargs):
     if created:
         from .models import Payment  # Import here to avoid circular imports
+
+        payment_type = getattr(instance, "_payment_type", Payment.PaymentType.STRIPE)
+
+        if payment_type == Payment.PaymentType.MANUAL:
+            payment_type= Payment.PaymentType.MANUAL
+        
+        if payment_type == Payment.PaymentType.STRIPE:
+            payment_type= Payment.PaymentType.STRIPE  
+        
         Payment.objects.create(
             appointment=instance,
             amount=instance.fees,
             currency='usd',  # Default currency, adjust as needed
-            # payment_type=Payment.PaymentType.STRIPE,  # Default payment type
+            payment_type=payment_type,  # Use the determined payment type
             status=Payment.Status.PENDING  # Initial status
         )
