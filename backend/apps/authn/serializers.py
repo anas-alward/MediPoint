@@ -150,7 +150,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 
-class PasswordResetConfirmSerializer(serializers.Serializer):
+class PasswordResetVerifySerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
 
@@ -172,7 +172,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         return data
 
 
-class PasswordResetVerifySerializer(serializers.Serializer):
+class PasswordResetConfirmSerializer(serializers.Serializer):
     email = serializers.EmailField()
     token = serializers.CharField()
     new_password = serializers.CharField(min_length=8)

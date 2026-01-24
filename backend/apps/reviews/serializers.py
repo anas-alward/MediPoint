@@ -1,6 +1,6 @@
 from .models import Review, Comment
 from rest_framework import serializers
-
+from apps.patients.serializers import PatientSerializer
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,6 +11,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
+    patient = PatientSerializer(many=False, read_only=True)
     class Meta:
         model = Review
         fields = ['id', 'patient', 'rating', 'content', 'doctor', 'comments', 'created_at', 'updated_at']
