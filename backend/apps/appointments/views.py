@@ -152,7 +152,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             patient_created = True
 
         appointment = Appointment(
-            patient=patient,
+            patient=user.patient,
             doctor=request.user.doctor,
             working_hours=working_hours,
             fees=working_hours.doctor.fees,
