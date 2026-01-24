@@ -30,11 +30,11 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # Static files (optional for local development)
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
-EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
+EMAIL_BACKEND = "anymail.DEFAULT_FROM_EMAIL.mailjet.EmailBackend"
 
 ANYMAIL = {
     "MAILJET_API_KEY": env("MAILJET_API_KEY"),
@@ -44,7 +44,7 @@ ANYMAIL = {
 
 DEFAULT_FROM_EMAIL = env(
     "DEFAULT_FROM_EMAIL",
-    default="medipoint@decodaai.com",
+    default="anas@decodaai.com",
 )
 
 SERVER_EMAIL = env(
@@ -54,9 +54,9 @@ SERVER_EMAIL = env(
 
 
 # Celery settings for local development
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
 
-DBBACKUP_STORAGE_OPTIONS = {'location': '/home/MediPoint/medipoint_db/'}
+DBBACKUP_STORAGE_OPTIONS = {"location": "/home/MediPoint/medipoint_db/"}

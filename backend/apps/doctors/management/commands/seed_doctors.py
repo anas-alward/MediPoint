@@ -152,7 +152,7 @@ class Command(BaseCommand):
         
         email_part = doctor_data['name'].split('.')[1:]
         email_part = ''.join(email_part).strip().replace(" ", "-").lower()
-        email = f"{email_part}@hospital.com"
+        email = doctor_data.get("email")
 
         user, created = User.objects.get_or_create(
             email=email,

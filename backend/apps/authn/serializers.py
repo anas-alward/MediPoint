@@ -40,7 +40,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         refresh["sessionid"] = session_id
         access["role"] = self.user.role
         access["sessionid"] = session_id
-
         # Step 5: Override default token strings in response
         data["refresh"] = str(refresh)
         data["access"] = str(access)

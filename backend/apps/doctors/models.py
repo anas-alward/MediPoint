@@ -1,3 +1,4 @@
+from turtle import mode
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
@@ -63,6 +64,7 @@ class Specialty(models.Model):
         null=True,
     )
     name = models.CharField(max_length=100)
+    name_ar = models.CharField(max_length=100, blank=True, null=True)
     slug = models.SlugField()
 
     class Meta:

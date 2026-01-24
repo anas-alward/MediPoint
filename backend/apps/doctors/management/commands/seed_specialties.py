@@ -93,6 +93,7 @@ class Command(BaseCommand):
                         "slug": specialty_data.get(
                             "slug", specialty_data["slug"]
                         ),
+                        "name_ar": specialty_data.get("name_ar", ""),
                         "icon": icon_file,
                     },
                 )

@@ -1,212 +1,602 @@
 [
   {
     "_id": "doc1",
-    "name": "Dr. Richard James",
+    "name": "د. أحمد محمد",
     "image": "doc1",
     "specialty": "general-physician",
-    "degree": "MBBS",
-    "experience": "4 Years",
-    "about": "Dr. Davis ",
-    "fees": 50,
+    "degree": "بكالوريوس الطب والجراحة",
+    "experience": "٨ سنوات",
+    "about": "د. أحمد محمد طبيب عام متمرس مع خبرة تزيد عن ٨ سنوات في تشخيص وعلاج الأمراض الشائعة. يهتم بالرعاية الوقائية ويقدم استشارات صحية شاملة لجميع أفراد الأسرة.",
+    "fees": 55,
+    "email": "ahmed.mohammed@medicalclinic.com",
     "address": {
-      "line1": "17th Cross, Richmond",
-      "line2": "Circle, Ring Road, London"
+      "line1": "شارع النخيل، الحي الطبي",
+      "line2": "الرياض، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc2",
-    "name": "Dr. Sarah Williams",
+    "name": "د. سارة عبدالله",
     "image": "doc2",
     "specialty": "pediatrician",
-    "degree": "MD Pediatrics",
-    "experience": "6 Years",
-    "about": "Dr. Sarah Williams is a compassionate pediatrician with over 6 years of experience in child healthcare. She is dedicated to providing comprehensive medical care to infants, children, and adolescents.",
-    "fees": 70,
+    "degree": "دكتوراه في طب الأطفال",
+    "experience": "٧ سنوات",
+    "about": "د. سارة عبدالله طبيبة أطفال متخصصة مع ٧ سنوات خبرة في رعاية صحة الأطفال من الولادة حتى المراهقة. تقدم برامج تطعيم متكاملة ومتابعة للنمو والتطور.",
+    "fees": 75,
+    "email": "sarah.abdullah@childrenshospital.com",
     "address": {
-      "line1": "123 Elm Street",
-      "line2": "Springfield, IL 62701"
+      "line1": "مستشفى الأطفال التخصصي",
+      "line2": "جدة، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc3",
-    "name": "Dr. Michael Johnson",
+    "name": "د. خالد الحمود",
     "image": "doc3",
     "specialty": "neurologist",
-    "degree": "MD Neurology",
-    "experience": "10 Years",
-    "about": "Dr. Michael Johnson is a highly skilled neurologist with a decade of experience in diagnosing and treating neurological conditions. He is committed to improving patients' neurological health through personalized care.",
-    "fees": 100,
+    "degree": "دكتوراه في طب الأعصاب",
+    "experience": "١٢ سنة",
+    "about": "د. خالد الحمود استشاري أعصاب مع أكثر من ١٢ سنة خبرة في تشخيص وعلاج الأمراض العصبية المعقدة. متخصص في اضطرابات النوم والصرع والأمراض العصبية التنكسية.",
+    "fees": 120,
+    "email": "khaled.alhamoud@neurocenter.com",
     "address": {
-      "line1": "456 Oak Avenue",
-      "line2": "Metropolis, NY 10001"
+      "line1": "المركز العصبي المتقدم",
+      "line2": "الدمام، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc4",
-    "name": "Dr. Emily Brown",
+    "name": "د. منى السديري",
     "image": "doc4",
     "specialty": "dermatologist",
-    "degree": "MD Dermatology",
-    "experience": "8 Years",
-    "about": "Dr. Emily Brown is a board-certified dermatologist with 8 years of experience in treating skin conditions. She specializes in both medical and cosmetic dermatology, providing patients with comprehensive skin care solutions.",
-    "fees": 80,
+    "degree": "دكتوراه في طب الجلدية",
+    "experience": "٩ سنوات",
+    "about": "د. منى السديري استشارية جلدية مع ٩ سنوات خبرة في علاج الأمراض الجلدية وإجراء العمليات التجميلية. متخصصة في علاج البهاق والصدفية وأمراض الشعر.",
+    "fees": 85,
+    "email": "mona.alsudairy@dermaclinic.com",
     "address": {
-      "line1": "789 Pine Road",
-      "line2": "Gotham, NJ 07097"
+      "line1": "عيادة الجلدية التخصصية",
+      "line2": "الخبر، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc5",
-    "name": "Dr. David Lee",
-    "image": "doc5",
-    "specialty": "dermatologist",
-    "degree": "MD Orthopedics",
-    "experience": "12 Years",
-    "about": "Dr. David Lee is an experienced orthopedic surgeon with over 12 years of expertise in treating musculoskeletal conditions. He is dedicated to helping patients regain mobility and improve their quality of life.",
-    "fees": 120,
+    "name": "د. محمد العتيبي",
+    "image": "doc1",
+    "specialty": "orthopedic",
+    "degree": "دكتوراه في جراحة العظام",
+    "experience": "١٥ سنة",
+    "about": "د. محمد العتيبي جراح عظام متميز مع خبرة تزيد عن ١٥ سنة في جراحات المفاصل والعمود الفقري. أجرى العديد من العمليات الناجحة في مجال استبدال المفاصل.",
+    "fees": 150,
+    "email": "mohammed.alotaibi@orthohospital.com",
     "address": {
-      "line1": "321 Maple Lane",
-      "line2": "Star City, CA 90001"
+      "line1": "مستشفى التخصصي للعظام",
+      "line2": "الرياض، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc6",
-    "name": "Dr. Olivia Martinez",
-    "image": "doc6",
-    "specialty": "neurologist",
-    "degree": "MD Neurology",
-    "experience": "9 Years",
-    "about": "Dr. Olivia Martinez is a dedicated neurologist with 9 years of experience in diagnosing and treating neurological disorders. She is committed to providing compassionate care to patients with complex neurological conditions.",
+    "name": "د. فاطمة القحطاني",
+    "image": "doc2",
+    "specialty": "gynecologist",
+    "degree": "دكتوراه في طب النساء والتوليد",
+    "experience": "١٠ سنوات",
+    "about": "د. فاطمة القحطاني استشارية نساء وتوليد مع ١٠ سنوات خبرة في متابعة الحمل والولادة وعلاج العقم. تقدم رعاية شاملة للنساء في جميع المراحل العمرية.",
     "fees": 110,
+    "email": "fatima.alqahtani@womenhealth.com",
     "address": {
-      "line1": "654 Cedar Street",
-      "line2": "Central City, TX 75001"
+      "line1": "مركز صحة المرأة",
+      "line2": "جدة، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc7",
-    "name": "Dr. James Wilson",
-    "image": "doc7",
-    "specialty": "pediatrician",
-    "degree": "MD Psychiatry",
-    "experience": "7 Years",
-    "about": "Dr. James Wilson is a compassionate psychiatrist with over 7 years of experience in mental health care. He specializes in treating a wide range of psychiatric disorders and is dedicated to improving patients' mental well-being.",
-    "fees": 90,
+    "name": "د. عبدالرحمن الغامدي",
+    "image": "doc3",
+    "specialty": "cardiologist",
+    "degree": "دكتوراه في أمراض القلب",
+    "experience": "١٣ سنة",
+    "about": "د. عبدالرحمن الغامدي استشاري قلب وأوعية دموية مع خبرة تزيد عن ١٣ سنة في تشخيص وعلاج أمراض القلب. متخصص في قسطرة القلب والفحوصات القلبية المتقدمة.",
+    "fees": 160,
+    "email": "abdulrahman.alghamdi@heartinstitute.com",
     "address": {
-      "line1": "987 Birch Boulevard",
-      "line2": "Coast City, FL 33001"
+      "line1": "معهد القلب المتقدم",
+      "line2": "الرياض، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc8",
-    "name": "Dr. Sophia Anderson",
-    "image": "doc8",
-    "specialty": "gynecologist",
-    "degree": "MD Gynecology",
-    "experience": "11 Years",
-    "about": "Dr. Sophia Anderson is a skilled gynecologist with 11 years of experience in women's health. She is dedicated to providing comprehensive care to her patients, including routine exams, prenatal care, and menopause management.",
-    "fees": 95,
+    "name": "د. نورة الرشيد",
+    "image": "doc4",
+    "specialty": "dermatologist",
+    "degree": "دكتوراه في طب الجلدية",
+    "experience": "٦ سنوات",
+    "about": "د. نورة الرشيد طبيبة جلدية متخصصة في الأمراض الجلدية لدى الأطفال والكبار. تهتم بعلاج حب الشباب والأمراض الجلدية الوراثية باستخدام أحدث التقنيات.",
+    "fees": 80,
+    "email": "noura.alrashed@skincenter.com",
     "address": {
-      "line1": "159 Maple Street",
-      "line2": "Smallville, KS 66002"
+      "line1": "عيادة البشرة والجلد",
+      "line2": "الدمام، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc9",
-    "name": "Dr. William Taylor",
-    "image": "doc9",
+    "name": "د. علي الشمري",
+    "image": "doc1",
     "specialty": "gastroenterologist",
-    "degree": "MD Gastroenterology",
-    "experience": "5 Years",
-    "about": "Dr. William Taylor is an experienced gastroenterologist with 5 years of expertise in treating digestive disorders. He is committed to providing personalized care to patients of all ages.",
-    "fees": 75,
+    "degree": "دكتوراه في أمراض الجهاز الهضمي",
+    "experience": "١١ سنة",
+    "about": "د. علي الشمري استشاري جهاز هضمي وكبد مع ١١ سنة خبرة في علاج أمراض الكبد والجهاز الهضمي. متخصص في عمليات المناظير الهضمية التشخيصية والعلاجية.",
+    "fees": 130,
+    "email": "ali.alshammari@gastrocenter.com",
     "address": {
-      "line1": "753 Willow Way",
-      "line2": "Emerald City, WA 98001"
+      "line1": "المركز المتقدم للجهاز الهضمي",
+      "line2": "الخبر، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc10",
-    "name": "Dr. Ava Harris",
-    "image": "doc10",
-    "specialty": "general-physician",
-    "degree": "MD General Medicine",
-    "experience": "13 Years",
-    "about": "Dr. Ava Harris is a dedicated oncologist with over 13 years of experience in cancer treatment. She is committed to providing compassionate care and advanced treatment options to her patients.",
-    "fees": 130,
+    "name": "د. لمى الحربي",
+    "image": "doc2",
+    "specialty": "pediatrician",
+    "degree": "دكتوراه في طب الأطفال",
+    "experience": "٨ سنوات",
+    "about": "د. لمى الحربي طبيبة أطفال متخصصة في حديثي الولادة والخدج. تعمل في رعاية الأطفال ذوي الحالات الخاصة وتقدم استشارات الرضاعة الطبيعية والتغذية.",
+    "fees": 90,
+    "email": "lama.alharbi@pediatriccare.com",
     "address": {
-      "line1": "852 Spruce Drive",
-      "line2": "Hill Valley, CA 94016"
+      "line1": "وحدة العناية بالأطفال",
+      "line2": "الرياض، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc11",
-    "name": "Dr. Ethan Clark",
-    "image": "doc11",
+    "name": "د. بدر السبيعي",
+    "image": "doc3",
     "specialty": "neurologist",
-    "degree": "MD Neurology",
-    "experience": "6 Years",
-    "about": "Dr. Ethan Clark is a skilled neurologist with 6 years of experience in managing neurological disorders. He is dedicated to helping patients achieve optimal health through personalized treatment plans.",
-    "fees": 85,
+    "degree": "دكتوراه في طب الأعصاب",
+    "experience": "٩ سنوات",
+    "about": "د. بدر السبيعي استشاري أعصاب متخصص في علاج الصداع المزمن والاضطرابات العصبية الوظيفية. يستخدم أحدث طرق التشخيص والعلاج للأمراض العصبية.",
+    "fees": 115,
+    "email": "badr.alsubaie@neuroclinic.com",
     "address": {
-      "line1": "951 Aspen Court",
-      "line2": "Riverdale, OH 43017"
+      "line1": "عيادة الأعصاب المتخصصة",
+      "line2": "جدة، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc12",
-    "name": "Dr. Mia Robinson",
-    "image": "doc12",
-    "specialty": "gastroenterologist",
-    "degree": "MD Gastroenterology",
-    "experience": "8 Years",
-    "about": "Dr. Mia Robinson is an experienced gastroenterologist with 8 years of expertise in treating digestive disorders. She is committed to improving patients' quality of life through comprehensive care.",
-    "fees": 90,
+    "name": "د. هدى الزهراني",
+    "image": "doc4",
+    "specialty": "psychiatrist",
+    "degree": "دكتوراه في الطب النفسي",
+    "experience": "١٠ سنوات",
+    "about": "د. هدى الزهراني استشارية طب نفسي مع ١٠ سنوات خبرة في علاج الاضطرابات النفسية. متخصصة في العلاج النفسي الدوائي والسلوكي للاكتئاب والقلق.",
+    "fees": 125,
+    "email": "huda.alzahrani@mentalhealth.com",
     "address": {
-      "line1": "357 Chestnut Street",
-      "line2": "Sunnydale, CA 94085"
+      "line1": "مركز الصحة النفسية",
+      "line2": "الدمام، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc13",
-    "name": "Dr. Lucas Walker",
-    "image": "doc13",
-    "specialty": "pediatrician",
-    "degree": "MD Pediatrics",
-    "experience": "7 Years",
-    "about": "Dr. Lucas Walker is a dedicated pediatrician with 7 years of experience in treating children's health issues. He is committed to providing personalized care to his young patients.",
-    "fees": 95,
+    "name": "د. عمر الفهد",
+    "image": "doc1",
+    "specialty": "urologist",
+    "degree": "دكتوراه في جراحة المسالك البولية",
+    "experience": "١٤ سنة",
+    "about": "د. عمر الفهد استشاري مسالك بولية مع خبرة تزيد عن ١٤ سنة في علاج أمراض الكلى والمسالك البولية. متخصص في جراحات المناظير البولية وأمراض البروستاتا.",
+    "fees": 145,
+    "email": "omar.alfahad@urologyhospital.com",
     "address": {
-      "line1": "258 Poplar Avenue",
-      "line2": "Gotham, NJ 07097"
+      "line1": "مستشفى المسالك البولية",
+      "line2": "الرياض، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc14",
-    "name": "Dr. Isabella Hall",
-    "image": "doc14",
-    "specialty": "neurologist",
-    "degree": "MD Neurology",
-    "experience": "9 Years",
-    "about": "Dr. Isabella Hall is an experienced neurologist with 9 years of expertise in managing neurological disorders. She is dedicated to providing comprehensive care to patients with neurological conditions.",
-    "fees": 100,
+    "name": "د. العنود العريفي",
+    "image": "doc2",
+    "specialty": "ophthalmologist",
+    "degree": "دكتوراه في طب وجراحة العيون",
+    "experience": "١٢ سنة",
+    "about": "د. العنود العريفي استشارية عيون مع ١٢ سنة خبرة في جراحات العيون والليزك. متخصصة في علاج أمراض الشبكية والمياه البيضاء وجراحات تصحيح النظر.",
+    "fees": 140,
+    "email": "alanoud.alarifi@eyecenter.com",
     "address": {
-      "line1": "147 Fir Street",
-      "line2": "Metropolis, NY 10001"
+      "line1": "مركز العيون المتقدم",
+      "line2": "جدة، المملكة العربية السعودية"
     }
   },
   {
     "_id": "doc15",
-    "name": "Dr. Benjamin Young",
-    "image": "doc15",
-    "specialty": "gastroenterologist",
-    "degree": "MD Gastroenterology",
-    "experience": "10 Years",
-    "about": "Dr. Benjamin Young is a skilled gastroenterologist with a decade of experience in treating digestive disorders. He is committed to improving patients' gastrointestinal health through personalized care.",
-    "fees": 110,
+    "name": "د. تركي المري",
+    "image": "doc3",
+    "specialty": "ent-specialist",
+    "degree": "دكتوراه في الأنف والأذن والحنجرة",
+    "experience": "١١ سنة",
+    "about": "د. تركي المري استشاري أنف وأذن وحنجرة مع ١١ سنة خبرة في جراحات الأذن والجيوب الأنفية. متخصص في عمليات تحسين السمع وجراحات الحنجرة الدقيقة.",
+    "fees": 120,
+    "email": "turki.almarri@entclinic.com",
     "address": {
-      "line1": "369 Magnolia Lane",
-      "line2": "Star City, CA 90001"
+      "line1": "عيادة الأنف والأذن والحنجرة",
+      "line2": "الخبر، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc16",
+    "name": "د. شهد المطيري",
+    "image": "doc4",
+    "specialty": "dermatologist",
+    "degree": "دكتوراه في طب الجلدية",
+    "experience": "٧ سنوات",
+    "about": "د. شهد المطيري طبيبة جلدية متخصصة في الأمراض الجلدية المناعية والتجميل. تقدم علاجات متقدمة لأمراض الجلد المزمنة وتقنيات تجميلية غير جراحية.",
+    "fees": 95,
+    "email": "shahad.almutairi@dermacosmetic.com",
+    "address": {
+      "line1": "مركز الجلدية والتجميل",
+      "line2": "الرياض، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc17",
+    "name": "د. فيصل الدوسري",
+    "image": "doc1",
+    "specialty": "general-physician",
+    "degree": "بكالوريوس الطب والجراحة",
+    "experience": "٦ سنوات",
+    "about": "د. فيصل الدوسري طبيب عام مع ٦ سنوات خبرة في الرعاية الصحية الأولية. يهتم بإدارة الأمراض المزمنة مثل السكري والضغط ويقدم استشارات نمط الحياة الصحية.",
+    "fees": 60,
+    "email": "faisal.aldosari@primarycare.com",
+    "address": {
+      "line1": "المركز الصحي الشامل",
+      "line2": "جدة، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc18",
+    "name": "د. نوف القاضي",
+    "image": "doc2",
+    "specialty": "pediatrician",
+    "degree": "دكتوراه في طب الأطفال",
+    "experience": "٩ سنوات",
+    "about": "د. نوف القاضي طبيبة أطفال متخصصة في أمراض الجهاز التنفسي لدى الأطفال. تقدم رعاية متكاملة لأمراض الربو والحساسية والتهابات الجهاز التنفسي المتكررة.",
+    "fees": 100,
+    "email": "nouf.algadi@pedrespiratory.com",
+    "address": {
+      "line1": "عيادة الأطفال المتخصصة",
+      "line2": "الدمام، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc19",
+    "name": "د. ماجد العنزي",
+    "image": "doc3",
+    "specialty": "neurologist",
+    "degree": "دكتوراه في طب الأعصاب",
+    "experience": "١٣ سنة",
+    "about": "د. ماجد العنزي استشاري أعصاب متخصص في السكتات الدماغية والاضطرابات العصبية الحادة. يدير وحدة السكتة الدماغية ويستخدم أحدث بروتوكولات العلاج.",
+    "fees": 155,
+    "email": "majed.alenezi@strokecenter.com",
+    "address": {
+      "line1": "مستشفى الأعصاب المتخصص",
+      "line2": "الرياض، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc20",
+    "name": "د. أروى الغامدي",
+    "image": "doc4",
+    "specialty": "endocrinologist",
+    "degree": "دكتوراه في أمراض الغدد الصماء",
+    "experience": "١٠ سنوات",
+    "about": "د. أروى الغامدي استشارية غدد صماء وسكري مع ١٠ سنوات خبرة في علاج أمراض الغدة الدرقية والسمنة والسكري. تقدم برامج متكاملة لإدارة الهرمونات والوزن.",
+    "fees": 135,
+    "email": "arwa.alghamdi@endocrinecenter.com",
+    "address": {
+      "line1": "مركز الغدد الصماء والسكري",
+      "line2": "جدة، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc21",
+    "name": "د. سعود الهاجري",
+    "image": "doc1",
+    "specialty": "orthopedic",
+    "degree": "دكتوراه في جراحة العظام",
+    "experience": "١٨ سنة",
+    "about": "د. سعود الهاجري جراح عظام متخصص في جراحات الإصابات الرياضية وإعادة التأهيل. يعمل مع العديد من الأندية الرياضية في علاج إصابات الملاعب.",
+    "fees": 180,
+    "email": "saud.alhajri@sportsmedicine.com",
+    "address": {
+      "line1": "مركز الطب الرياضي",
+      "line2": "الخبر، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc22",
+    "name": "د. ريم الفوزان",
+    "image": "doc2",
+    "specialty": "gynecologist",
+    "degree": "دكتوراه في طب النساء والتوليد",
+    "experience": "١٢ سنة",
+    "about": "د. ريم الفوزان استشارية نساء وتوليد متخصصة في جراحات المناظير النسائية والعقم. تقدم علاجات متقدمة للعقم وأمراض الرحم والمبيض.",
+    "fees": 150,
+    "email": "reem.alfouzan@fertilitycenter.com",
+    "address": {
+      "line1": "مركز الخصوبة والنساء",
+      "line2": "الرياض، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc23",
+    "name": "د. وليد الجهني",
+    "image": "doc3",
+    "specialty": "cardiologist",
+    "degree": "دكتوراه في أمراض القلب",
+    "experience": "١٦ سنة",
+    "about": "د. وليد الجهني استشاري قلب متخصص في أمراض القلب الخلقية لدى الكبار. يجري عمليات قسطرة معقدة وتركيب أجهزة تنظيم ضربات القلب.",
+    "fees": 190,
+    "email": "waleed.aljahni@adultcardiology.com",
+    "address": {
+      "line1": "معهد القلب للكبار",
+      "line2": "جدة، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc24",
+    "name": "د. جواهر المانع",
+    "image": "doc4",
+    "specialty": "psychiatrist",
+    "degree": "دكتوراه في الطب النفسي",
+    "experience": "٨ سنوات",
+    "about": "د. جواهر المانع طبيبة نفسية متخصصة في الطب النفسي للأطفال والمراهقين. تقدم علاجات سلوكية وتربوية للاضطرابات النفسية في المراحل العمرية المبكرة.",
+    "fees": 110,
+    "email": "jawaher.almanea@childpsychiatry.com",
+    "address": {
+      "line1": "عيادة الصحة النفسية للأطفال",
+      "line2": "الدمام، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc25",
+    "name": "د. عبدالعزيز السليمان",
+    "image": "doc1",
+    "specialty": "general-physician",
+    "degree": "بكالوريوس الطب والجراحة",
+    "experience": "١٠ سنوات",
+    "about": "د. عبدالعزيز السليمان طبيب عام متمرس مع ١٠ سنوات خبرة في الرعاية الصحية العائلية. يقدم خدمات التطعيمات والفحوصات الدورية وإدارة الأمراض المزمنة.",
+    "fees": 70,
+    "email": "abdulaziz.alsulaiman@familyclinic.com",
+    "address": {
+      "line1": "العيادة الأسرية الشاملة",
+      "line2": "الرياض، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc26",
+    "name": "د. غادة العثمان",
+    "image": "doc2",
+    "specialty": "pediatrician",
+    "degree": "دكتوراه في طب الأطفال",
+    "experience": "٥ سنوات",
+    "about": "د. غادة العثمان طبيبة أطفال متخصصة في التغذية والنمو لدى الأطفال. تقدم استشارات تغذوية متكاملة وعلاج حالات سوء التغذية والسمنة لدى الأطفال.",
+    "fees": 85,
+    "email": "ghada.alothman@pednutrition.com",
+    "address": {
+      "line1": "عيادة تغذية الأطفال",
+      "line2": "جدة، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc27",
+    "name": "د. معن النفيسة",
+    "image": "doc3",
+    "specialty": "neurologist",
+    "degree": "دكتوراه في طب الأعصاب",
+    "experience": "١٤ سنة",
+    "about": "د. معن النفيسة استشاري أعصاب متخصص في أمراض الأعصاب العضلية والوراثية. يجري أبحاثاً في مجال الوراثة العصبية ويقدم استشارات وراثية للأمراض العصبية.",
+    "fees": 170,
+    "email": "maan.alnafisa@neurogenetics.com",
+    "address": {
+      "line1": "المركز المتقدم للأعصاب",
+      "line2": "الخبر، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc28",
+    "name": "د. أمل الجبر",
+    "image": "doc4",
+    "specialty": "dermatologist",
+    "degree": "دكتوراه في طب الجلدية",
+    "experience": "١١ سنة",
+    "about": "د. أمل الجبر استشارية جلدية متخصصة في أمراض الجلد الجرثومية والطفيلية. تقدم علاجات متقدمة للأمراض الجلدية المعدية والتهابات الجلد البكتيرية والفطرية.",
+    "fees": 120,
+    "email": "amal.aljabr@infectiousderm.com",
+    "address": {
+      "line1": "عيادة الأمراض الجلدية المعدية",
+      "line2": "الرياض، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc29",
+    "name": "د. أنس الزهراني",
+    "image": "doc1",
+    "specialty": "gastroenterologist",
+    "degree": "دكتوراه في أمراض الجهاز الهضمي",
+    "experience": "١٣ سنة",
+    "about": "د. أنس الزهراني استشاري جهاز هضمي متخصص في أمراض القولون والأمعاء. يجري عمليات مناظير القولون التشخيصية والعلاجية ويقدم برامج الكشف المبكر عن سرطان القولون.",
+    "fees": 145,
+    "email": "anas.alzahrani@coloncancer.com",
+    "address": {
+      "line1": "مركز الجهاز الهضمي والقولون",
+      "line2": "جدة، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc30",
+    "name": "د. لولوه العبدالكريم",
+    "image": "doc2",
+    "specialty": "ophthalmologist",
+    "degree": "دكتوراه في طب وجراحة العيون",
+    "experience": "٩ سنوات",
+    "about": "د. لولوه العبدالكريم استشارية عيون متخصصة في أمراض العيون لدى الأطفال وجراحات الحول. تقدم رعاية شاملة لمشاكل الإبصار في المراحل العمرية المبكرة.",
+    "fees": 130,
+    "email": "lulwah.abdulkarim@pedeyecare.com",
+    "address": {
+      "line1": "عيادة عيون الأطفال",
+      "line2": "الدمام، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc31",
+    "name": "د. سامي الحارثي",
+    "image": "doc3",
+    "specialty": "ent-specialist",
+    "degree": "دكتوراه في الأنف والأذن والحنجرة",
+    "experience": "١٥ سنة",
+    "about": "د. سامي الحارثي استشاري أنف وأذن وحنجرة متخصص في جراحات الأورام والعمليات الدقيقة للحنجرة. يعمل في علاج سرطان الحنجرة وأورام الرقبة.",
+    "fees": 160,
+    "email": "sami.alharthi@entoncology.com",
+    "address": {
+      "line1": "مستشفى الأنف والأذن المتخصص",
+      "line2": "الرياض، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc32",
+    "name": "د. مها السبيعي",
+    "image": "doc4",
+    "specialty": "psychiatrist",
+    "degree": "دكتوراه في الطب النفسي",
+    "experience": "١٢ سنة",
+    "about": "د. مها السبيعي استشارية طب نفسي متخصصة في علاج الاضطرابات النفسية لدى كبار السن. تقدم برامج متكاملة للخرف والاكتئاب لدى المسنين.",
+    "fees": 140,
+    "email": "maha.alsubaie@geriatricpsych.com",
+    "address": {
+      "line1": "مركز الطب النفسي للمسنين",
+      "line2": "جدة، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc33",
+    "name": "د. ناصر القصير",
+    "image": "doc1",
+    "specialty": "urologist",
+    "degree": "دكتوراه في جراحة المسالك البولية",
+    "experience": "١٧ سنة",
+    "about": "د. ناصر القصير استشاري مسالك بولية متخصص في جراحات الكلى المتقدمة وزراعة الكلى. يعمل في برامج زراعة الأعضاء ويجري عمليات معقدة في المسالك البولية.",
+    "fees": 200,
+    "email": "nasser.alqasir@kidneytransplant.com",
+    "address": {
+      "line1": "مركز زراعة الكلى والمسالك",
+      "line2": "الخبر، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc34",
+    "name": "د. عبير الشهري",
+    "image": "doc2",
+    "specialty": "endocrinologist",
+    "degree": "دكتوراه في أمراض الغدد الصماء",
+    "experience": "١٤ سنة",
+    "about": "د. عبير الشهري استشارية غدد صماء متخصصة في أمراض الغدة النخامية والكظرية. تقدم علاجات متقدمة للاضطرابات الهرمونية النادرة والمعقدة.",
+    "fees": 165,
+    "email": "abeer.alshehri@pituitarycenter.com",
+    "address": {
+      "line1": "مركز الغدد الصماء المتقدم",
+      "line2": "الرياض، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc35",
+    "name": "د. حاتم المالكي",
+    "image": "doc3",
+    "specialty": "cardiologist",
+    "degree": "دكتوراه في أمراض القلب",
+    "experience": "١٩ سنة",
+    "about": "د. حاتم المالكي استشاري قلب متخصص في فشل القلب وزراعة القلب. يدير وحدة العناية المركزة للقلب ويقدم برامج إعادة تأهيل قلبية متكاملة.",
+    "fees": 220,
+    "email": "hatem.almaliki@heartfailure.com",
+    "address": {
+      "line1": "معهد القلب المتطور",
+      "line2": "جدة، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc36",
+    "name": "د. ياسمين البسام",
+    "image": "doc4",
+    "specialty": "gynecologist",
+    "degree": "دكتوراه في طب النساء والتوليد",
+    "experience": "١٣ سنة",
+    "about": "د. ياسمين البسام استشارية نساء وتوليد متخصصة في طب الأم والجنين. تقدم رعاية متقدمة للحمل عالي الخطورة ومتابعة الجنين بالأجهزة المتطورة.",
+    "fees": 175,
+    "email": "yasmin.albassam@maternalfetal.com",
+    "address": {
+      "line1": "مركز طب الأم والجنين",
+      "line2": "الدمام، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc37",
+    "name": "د. فواز الغامدي",
+    "image": "doc1",
+    "specialty": "orthopedic",
+    "degree": "دكتوراه في جراحة العظام",
+    "experience": "٢٠ سنة",
+    "about": "د. فواز الغامدي جراح عظام متخصص في جراحات العمود الفقري المعقدة. يجري عمليات دقيقة للانزلاق الغضروفي وتثبيت الفقرات وتصحيح اعوجاج العمود الفقري.",
+    "fees": 240,
+    "email": "fawaz.alghamdi@spinesurgery.com",
+    "address": {
+      "line1": "مركز جراحة العمود الفقري",
+      "line2": "الرياض، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc38",
+    "name": "د. دلال الحربي",
+    "image": "doc2",
+    "specialty": "pediatrician",
+    "degree": "دكتوراه في طب الأطفال",
+    "experience": "١١ سنة",
+    "about": "د. دلال الحربي طبيبة أطفال متخصصة في أمراض الدم والأورام لدى الأطفال. تعمل في أقسام الأورام للأطفال وتقدم علاجات كيماوية متقدمة.",
+    "fees": 155,
+    "email": "dalal.alharbi@pedoncology.com",
+    "address": {
+      "line1": "مركز أورام الأطفال",
+      "line2": "جدة، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc39",
+    "name": "د. رائد الشمراني",
+    "image": "doc3",
+    "specialty": "neurologist",
+    "degree": "دكتوراه في طب الأعصاب",
+    "experience": "١٦ سنة",
+    "about": "د. رائد الشمراني استشاري أعصاب متخصص في علاج التصلب المتعدد والأمراض المناعية العصبية. يدير عيادة التصلب المتعدد ويقدم أحدث العلاجات المناعية.",
+    "fees": 195,
+    "email": "raed.alshammari@mscenter.com",
+    "address": {
+      "line1": "مركز التصلب المتعدد والأمراض المناعية",
+      "line2": "الخبر، المملكة العربية السعودية"
+    }
+  },
+  {
+    "_id": "doc40",
+    "name": "د. مشاعل العلي",
+    "image": "doc4",
+    "specialty": "dermatologist",
+    "degree": "دكتوراه في طب الجلدية",
+    "experience": "١٥ سنة",
+    "about": "د. مشاعل العلي استشارية جلدية متخصصة في الأمراض الجلدية الوراثية والمناعية. تقدم علاجات بيولوجية متقدمة لأمراض الجلد المزمنة والمناعية.",
+    "fees": 180,
+    "email": "mashaal.alali@immunederm.com",
+    "address": {
+      "line1": "مركز الأمراض الجلدية المتقدمة",
+      "line2": "الرياض، المملكة العربية السعودية"
     }
   }
 ]

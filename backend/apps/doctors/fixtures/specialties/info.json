@@ -1,38 +1,122 @@
 [
   {
     "name": "General physician",
+    "name_ar": "طبيب عام",
     "slug": "general-physician",
     "image": "general-physician.svg",
-    "description": "General physicians are medical doctors who diagnose and treat a wide range of common illnesses and conditions. They provide primary care services, including health assessments, preventive care, and management of chronic diseases."
+    "description": "General physicians are medical doctors who diagnose and treat a wide range of common illnesses and conditions. They provide primary care services, including health assessments, preventive care, and management of chronic diseases.",
+    "description_ar": "الأطباء العامون هم أطباء يشخصون ويعالجون مجموعة واسعة من الأمراض والحالات الشائعة. يقدمون خدمات الرعاية الأولية، بما في ذلك التقييمات الصحية، والرعاية الوقائية، وإدارة الأمراض المزمنة."
   },
   {
     "name": "Dermatologist",
+    "name_ar": "طبيب أمراض جلدية",
     "slug": "dermatologist",
     "image": "dermatologist.svg",
-    "description": "Dermatologists focus on the diagnosis and treatment of skin, hair, and nail conditions. They treat a variety of issues, including acne, eczema, psoriasis, skin infections, and skin cancer."
+    "description": "Dermatologists focus on the diagnosis and treatment of skin, hair, and nail conditions. They treat a variety of issues, including acne, eczema, psoriasis, skin infections, and skin cancer.",
+    "description_ar": "يتخصص أطباء الجلدية في تشخيص وعلاج حالات الجلد والشعر والأظافر. يعالجون مجموعة متنوعة من المشاكل بما في ذلك حب الشباب، الأكزيما، الصدفية، التهابات الجلد، وسرطان الجلد."
   },
   {
     "name": "Pediatrician",
+    "name_ar": "طبيب أطفال",
     "slug": "pediatrician",
     "image": "pediatrician.svg",
-    "description": "Pediatricians provide medical care for infants, children, and adolescents. They monitor growth and development, administer vaccinations, and treat common childhood illnesses and injuries."
+    "description": "Pediatricians provide medical care for infants, children, and adolescents. They monitor growth and development, administer vaccinations, and treat common childhood illnesses and injuries.",
+    "description_ar": "يقدم أطباء الأطفال الرعاية الطبية للرضع والأطفال والمراهقين. يراقبون النمو والتطور، ويقومون بتلقيح الأطفال، ويعالجون الأمراض والإصابات الشائعة في مرحلة الطفولة."
   },
   {
     "name": "Neurologist",
+    "name_ar": "طبيب أعصاب",
     "slug": "neurologist",
     "image": "neurologist.svg",
-    "description": "Neurologists diagnose and treat disorders of the nervous system, including the brain, spinal cord, and peripheral nerves. They manage conditions such as epilepsy, stroke, multiple sclerosis, and Parkinson's disease."
+    "description": "Neurologists diagnose and treat disorders of the nervous system, including the brain, spinal cord, and peripheral nerves. They manage conditions such as epilepsy, stroke, multiple sclerosis, and Parkinson's disease.",
+    "description_ar": "يشخص أطباء الأعصاب ويعالجون اضطرابات الجهاز العصبي، بما في ذلك الدماغ والحبل الشوكي والأعصاب الطرفية. يديرون حالات مثل الصرع، السكتة الدماغية، التصلب المتعدد، ومرض باركنسون."
   },
   {
     "name": "Gynecologist",
+    "name_ar": "طبيب نساء وتوليد",
     "slug": "gynecologist",
     "image": "gynecologist.svg",
-    "description": "Gynecologists specialize in women's reproductive health, including the diagnosis and treatment of conditions related to the female reproductive system. They provide care for issues such as menstrual disorders, pregnancy, and menopause."
+    "description": "Gynecologists specialize in women's reproductive health, including the diagnosis and treatment of conditions related to the female reproductive system. They provide care for issues such as menstrual disorders, pregnancy, and menopause.",
+    "description_ar": "يتخصص أطباء النساء والتوليد في صحة المرأة الإنجابية، بما في ذلك تشخيص وعلاج الحالات المتعلقة بالجهاز التناسلي الأنثوي. يقدمون الرعاية لمشاكل مثل اضطرابات الدورة الشهرية، الحمل، وانقطاع الطمث."
   },
   {
     "name": "Gastroenterologist",
+    "name_ar": "طبيب جهاز هضمي",
     "slug": "gastroenterologist",
     "image": "gastroenterologist.svg",
-    "description": "Gastroenterologists focus on the diagnosis and treatment of digestive system disorders. They manage conditions such as acid reflux, irritable bowel syndrome (IBS), Crohn's disease, and liver diseases."
+    "description": "Gastroenterologists focus on the diagnosis and treatment of digestive system disorders. They manage conditions such as acid reflux, irritable bowel syndrome (IBS), Crohn's disease, and liver diseases.",
+    "description_ar": "يركز أطباء الجهاز الهضمي على تشخيص وعلاج اضطرابات الجهاز الهضمي. يديرون حالات مثل ارتجاع المريء، متلازمة القولون العصبي، مرض كرون، وأمراض الكبد."
+  },
+  {
+    "name": "Cardiologist",
+    "name_ar": "طبيب قلب",
+    "slug": "cardiologist",
+    "image": "cardiologist.svg",
+    "description": "Cardiologists specialize in diagnosing and treating diseases and conditions of the heart and blood vessels. They manage heart attacks, heart failure, arrhythmias, and hypertension.",
+    "description_ar": "يتخصص أطباء القلب في تشخيص وعلاج أمراض وحالات القلب والأوعية الدموية. يديرون حالات النوبات القلبية، فشل القلب، عدم انتظام ضربات القلب، وارتفاع ضغط الدم."
+  },
+  {
+    "name": "Orthopedic Surgeon",
+    "name_ar": "جراح عظام",
+    "slug": "orthopedic-surgeon",
+    "image": "orthopedic-surgeon.svg",
+    "description": "Orthopedic surgeons diagnose and treat musculoskeletal conditions, including bones, joints, ligaments, tendons, and muscles. They perform surgeries for fractures, arthritis, and sports injuries.",
+    "description_ar": "يشخص جراحو العظام ويعالجون حالات الجهاز العضلي الهيكلي، بما في ذلك العظام والمفاصل والأربطة والأوتار والعضلات. يجريون عمليات جراحية للكسور، التهاب المفاصل، وإصابات الرياضة."
+  },
+  {
+    "name": "Psychiatrist",
+    "name_ar": "طبيب نفسي",
+    "slug": "psychiatrist",
+    "image": "psychiatrist.svg",
+    "description": "Psychiatrists diagnose and treat mental health disorders. They provide therapy, medication management, and treatment for conditions like depression, anxiety, bipolar disorder, and schizophrenia.",
+    "description_ar": "يشخص الأطباء النفسيون ويعالجون اضطرابات الصحة العقلية. يقدمون العلاج النفسي، وإدارة الأدوية، والعلاج لحالات مثل الاكتئاب، القلق، الاضطراب ثنائي القطب، والفصام."
+  },
+  {
+    "name": "Ophthalmologist",
+    "name_ar": "طبيب عيون",
+    "slug": "ophthalmologist",
+    "image": "ophthalmologist.svg",
+    "description": "Ophthalmologists specialize in eye and vision care. They diagnose and treat eye diseases, perform eye surgery, and prescribe glasses and contact lenses.",
+    "description_ar": "يتخصص أطباء العيون في رعاية العين والرؤية. يشخصون ويعالجون أمراض العيون، ويجرون جراحات العيون، ويصفون النظارات الطبية والعدسات اللاصقة."
+  },
+  {
+    "name": "Endocrinologist",
+    "name_ar": "طبيب غدد صماء",
+    "slug": "endocrinologist",
+    "image": "endocrinologist.svg",
+    "description": "Endocrinologists focus on hormone-related disorders and diseases. They treat conditions like diabetes, thyroid disorders, osteoporosis, and hormonal imbalances.",
+    "description_ar": "يركز أطباء الغدد الصماء على الاضطرابات والأمراض المرتبطة بالهرمونات. يعالجون حالات مثل مرض السكري، اضطرابات الغدة الدرقية، هشاشة العظام، وعدم التوازن الهرموني."
+  },
+  {
+    "name": "Urologist",
+    "name_ar": "طبيب مسالك بولية",
+    "slug": "urologist",
+    "image": "urologist.svg",
+    "description": "Urologists diagnose and treat conditions of the urinary tract in both men and women, and male reproductive system. They manage kidney stones, urinary infections, prostate issues, and male infertility.",
+    "description_ar": "يشخص أطباء المسالك البولية ويعالجون حالات الجهاز البولي لدى الرجال والنساء، والجهاز التناسلي الذكري. يديرون حالات حصوات الكلى، التهابات المسالك البولية، مشاكل البروستاتا، والعقم الذكوري."
+  },
+  {
+    "name": "Pulmonologist",
+    "name_ar": "طبيب أمراض رئوية",
+    "slug": "pulmonologist",
+    "image": "pulmonologist.svg",
+    "description": "Pulmonologists specialize in respiratory system diseases and conditions. They treat asthma, chronic obstructive pulmonary disease (COPD), pneumonia, lung cancer, and sleep apnea.",
+    "description_ar": "يتخصص أطباء الأمراض الرئوية في أمراض وحالات الجهاز التنفسي. يعالجون الربو، مرض الانسداد الرئوي المزمن، الالتهاب الرئوي، سرطان الرئة، وانقطاع النفس النومي."
+  },
+  {
+    "name": "Rheumatologist",
+    "name_ar": "طبيب روماتيزم",
+    "slug": "rheumatologist",
+    "image": "rheumatologist.svg",
+    "description": "Rheumatologists diagnose and treat autoimmune diseases and musculoskeletal conditions. They manage rheumatoid arthritis, lupus, gout, osteoarthritis, and other inflammatory conditions.",
+    "description_ar": "يشخص أطباء الروماتيزم ويعالجون أمراض المناعة الذاتية وحالات الجهاز العضلي الهيكلي. يديرون التهاب المفاصل الروماتويدي، الذئبة الحمراء، النقرس، التهاب المفاصل العظمي، وحالات التهابية أخرى."
+  },
+  {
+    "name": "Oncologist",
+    "name_ar": "طبيب أورام",
+    "slug": "oncologist",
+    "image": "oncologist.svg",
+    "description": "Oncologists specialize in diagnosing and treating cancer. They provide chemotherapy, radiation therapy, immunotherapy, and other cancer treatments, and manage patient care throughout treatment.",
+    "description_ar": "يتخصص أطباء الأورام في تشخيص وعلاج السرطان. يقدمون العلاج الكيميائي، العلاج الإشعاعي، العلاج المناعي، وعلاجات السرطان الأخرى، ويديرون رعاية المرضى خلال العلاج."
   }
 ]
