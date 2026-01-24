@@ -133,10 +133,13 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         patient_created = False
 
         if user:
-            if not hasattr(user, "patient"):
-                patient = Patient.objects.create(user=user)
-            else:
-                patient = user.patient
+            if not user.is_patient:
+                return Response(
+                    {
+                        "detail": "The email is already associated with a non-patient user."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         else:
             user = User.objects.create_user(
                 email=data["email"],
@@ -146,7 +149,6 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             )
             user.set_unusable_password()
             user.save(update_fields=["password", "role", "full_name", "email"])
-            patient = Patient.objects.create(user=user)
             patient_created = True
 
         appointment = Appointment(
@@ -157,7 +159,6 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         )
         appointment._payment_type = Payment.PaymentType.MANUAL
         appointment.save()
-
 
         response_data = AppointmentSerializer(
             appointment, context={"request": request}
