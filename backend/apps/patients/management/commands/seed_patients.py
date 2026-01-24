@@ -37,7 +37,7 @@ class Command(BaseCommand):
     def seed_users(self, patients_data):
         ids = []
         for patient_data in patients_data:
-            email = patient_data.get("name").replace(" ", ".").lower() + "@example.com"
+            email = patient_data.get("email")
             
             if user:=User.objects.filter(email=email).first():
                 ids.append(user.id)
