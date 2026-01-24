@@ -34,7 +34,7 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
-EMAIL_BACKEND = "anymail.DEFAULT_FROM_EMAIL.mailjet.EmailBackend"
+EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 
 ANYMAIL = {
     "MAILJET_API_KEY": env("MAILJET_API_KEY"),
