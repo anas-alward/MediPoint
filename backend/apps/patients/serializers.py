@@ -76,32 +76,6 @@ class PatientFolderSharedSerializer(serializers.ModelSerializer):
 
         return folder
 
-class PatientFolderSharedBulkCreateOrUpdateSerializer(serializers.ModelSerializer):
-    # list of ids
-    folders = 
-
-    class Meta:
-        model = PatientSharedFolder
-        fields = [
-            "folder",
-            "doctor",
-            "appointment",
-            "sharing_type",
-        ]
-
-    def validate_folder(self, folder):
-        request = self.context["request"]
-        user = request.user
-
-        if not hasattr(user, "patient"):
-            raise serializers.ValidationError("Only patients can share folders.")
-
-        if folder.patient != user.patient:
-            raise serializers.ValidationError("You do not own this folder.")
-
-        return folder
-
-
 
 
 class PatientFolderSharedBulkCreateSerializer(serializers.Serializer):
