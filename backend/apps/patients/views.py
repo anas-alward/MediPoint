@@ -9,13 +9,18 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .permissions import IsPatient, IsPatientOwnerOfFolderOrFile
-from .models import Patient, PatientFolder, PatientFile
-from .serializers import PatientFolderSerializer, PatientSerializer, PatientFileSerializer
+from .models import Patient, PatientFolder, PatientFile, PatientSharedFolder
+from .serializers import (
+    PatientFolderSerializer,
+    PatientSerializer,
+    PatientFileSerializer,
+    PatientFolderSharedSerializer,
+)
+
 
 class PatientViewSet(viewsets.ModelViewSet):
     queryset = Patient.objects.all().select_related("user")
     serializer_class = PatientSerializer
-    
 
     def get_serializer(self, *args, **kwargs):
         # Pass the request context to the serializer
@@ -33,7 +38,7 @@ class PatientFolderViewSet(viewsets.ModelViewSet):
         patient_id = self.kwargs.get("patient_pk")
         folder_id = self.kwargs.get("pk")
 
-        if patient_id: 
+        if patient_id:
             self._handle_nested_patient_scenario(patient_id)
         elif folder_id:
             self._handle_direct_folder_access(folder_id)
@@ -102,11 +107,12 @@ class ProtectedMediaView(APIView):
         except PatientFile.DoesNotExist:
             raise Http404("File not found")
 
-        
-        if  not request.user.is_patient or patient_file.folder.patient != request.user.patient:
+        if (
+            not request.user.is_patient
+            or patient_file.folder.patient != request.user.patient
+        ):
             return Response({"detail": "Forbidden"}, status=403)
-            
-        
+
         # Serve the file
         file_path = patient_file.file.path
         if not os.path.exists(file_path):
@@ -117,10 +123,16 @@ class ProtectedMediaView(APIView):
             return FileResponse(open(file_path, "rb"))
         else:
             # PROD mode: tell Nginx to serve it
-            protected_path = (
-                f"/media/{settings.PROTECTED_SUBPATH}/{patient_file.name}"
-            )
+            protected_path = f"/media/{settings.PROTECTED_SUBPATH}/{patient_file.name}"
             response = HttpResponse()
             response["Content-Type"] = ""
             response["X-Accel-Redirect"] = protected_path
             return response
+
+
+class PatientFolderSharedViewSet(viewsets.ModelViewSet):
+    queryset = PatientSharedFolder.objects.select_related("folder").prefetch_related(
+        "folder__files"
+    )
+    serializer_class = PatientFolderSharedSerializer
+    

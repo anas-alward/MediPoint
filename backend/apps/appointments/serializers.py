@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.doctors.serializers import DoctorSerializer
-from apps.patients.serializers import PatientSerializer
+from apps.patients.serializers import PatientSerializer, PatientFolderSharedSerializer
 from apps.doctors.models import WorkingHours
 
 from .models import Appointment, Payment
@@ -30,6 +30,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 class AppointmentSerializer(serializers.ModelSerializer):
     datetime = serializers.SerializerMethodField()
     # use source='payment' but allow null=True
+    shared_folders = PatientFolderSharedSerializer()
     payment = serializers.SerializerMethodField()
 
     class Meta:

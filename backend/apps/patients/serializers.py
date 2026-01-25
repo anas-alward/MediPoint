@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Patient, PatientFolder, PatientFile
+from .models import Patient, PatientFolder, PatientFile, PatientSharedFolder
 from apps.users.serializers import UserSerializer
 
 
@@ -45,3 +45,34 @@ class PatientFileSerializer(serializers.ModelSerializer):
         if self.instance is not None:
             self.fields['name'].required = False
             self.fields['file'].required = False
+
+
+class PatientFolderSharedSerializer(serializers.ModelSerializer):
+    folder = PatientFolderSerializer(read_only=True)
+    folder_id = serializers.PrimaryKeyRelatedField(
+        source="folder",
+        queryset=PatientFolder.objects.all(),
+        write_only=True,
+    )
+
+    class Meta:
+        model = PatientSharedFolder
+        fields = [
+            "folder",
+            "folder_id",
+            "doctor",
+            "appointment",
+            "sharing_type",
+        ]
+
+    def validate_folder(self, folder):
+        request = self.context["request"]
+        user = request.user
+
+        if not hasattr(user, "patient"):
+            raise serializers.ValidationError("Only patients can share folders.")
+
+        if folder.patient != user.patient:
+            raise serializers.ValidationError("You do not own this folder.")
+
+        return folder
