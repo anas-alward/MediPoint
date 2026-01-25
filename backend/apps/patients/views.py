@@ -7,7 +7,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from rest_framework import status
 from .permissions import IsPatient, IsPatientOwnerOfFolderOrFile
 from .models import Patient, PatientFolder, PatientFile, PatientSharedFolder
 from .serializers import (
@@ -15,6 +15,8 @@ from .serializers import (
     PatientSerializer,
     PatientFileSerializer,
     PatientFolderSharedSerializer,
+    PatientFolderSharedBulkRemoveSerializer,
+    PatientFolderSharedBulkCreateSerializer,
 )
 
 
@@ -130,9 +132,32 @@ class ProtectedMediaView(APIView):
             return response
 
 
-class PatientFolderSharedViewSet(viewsets.ModelViewSet):
-    queryset = PatientSharedFolder.objects.select_related("folder").prefetch_related(
-        "folder__files"
-    )
-    serializer_class = PatientFolderSharedSerializer
-    
+# class PatientFolderSharedViewSet(viewsets.ModelViewSet):
+#     queryset = PatientSharedFolder.objects.select_related("folder").prefetch_related(
+#         "folder__files"
+#     )
+#     serializer_class = PatientFolderSharedSerializer
+
+
+class PatientFolderSharedBulkView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = PatientFolderSharedBulkCreateSerializer(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        created = serializer.create()
+        return Response(
+            {"created_ids": [obj.id for obj in created]}, status=status.HTTP_201_CREATED
+        )
+
+    def delete(self, request):
+        serializer = PatientFolderSharedBulkRemoveSerializer(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        deleted_count = serializer.delete()
+        return Response(
+            {"deleted_count": deleted_count}, status=status.HTTP_204_NO_CONTENT
+        )

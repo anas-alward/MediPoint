@@ -1,18 +1,17 @@
 from django.urls import path, include
 from rest_framework_nested import routers
 from .views import (
+    PatientFolderSharedBulkView,
     PatientViewSet,
     PatientFolderViewSet,
     PatientFileViewSet,
     ProtectedMediaView,
-    PatientFolderSharedViewSet
 )
 
 router = routers.DefaultRouter()
 router.register(r"patients", PatientViewSet, basename="patients")
 router.register(r"folders", PatientFolderViewSet, basename="patient-folders")
 router.register(r"files", PatientFileViewSet, basename="patient-files")
-router.register(r'patient-shared-folders', PatientFolderSharedViewSet, basename="patient-shared-folders")
 patient_router = routers.NestedSimpleRouter(router, r"patients", lookup="patient")
 patient_router.register(r"folders", PatientFolderViewSet, basename="patient-folders")
 
@@ -20,7 +19,13 @@ folder_router = routers.NestedSimpleRouter(router, r"folders", lookup="folder")
 folder_router.register(r"files", PatientFileViewSet, basename="patient-files")
 
 
+urlpatterns = []
 patient_routes = [
+    path(
+        "patient-folders/shared/bulk/",
+        PatientFolderSharedBulkView.as_view(),
+        name="patient-folder-shared-bulk",
+    ),
     path("", include(router.urls)),
     path("", include(patient_router.urls)),
     path("", include(folder_router.urls)),
