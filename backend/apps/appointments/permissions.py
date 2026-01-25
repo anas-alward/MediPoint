@@ -12,6 +12,9 @@ class AppointmentPermissions(BasePermission):
         if not request.user.is_authenticated:
             return False
 
+        if request.method in SAFE_METHODS:
+            return True
+        
         if request.method in ['POST', 'PUT', 'PATCH', 'DELETE']:
             if request.user.is_patient and obj.patient == request.user.patient:
                 return True
