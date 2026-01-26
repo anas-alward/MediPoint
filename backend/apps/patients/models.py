@@ -13,6 +13,9 @@ class Patient(models.Model):
     def __str__(self):
         return f"{self.user.full_name}"
 
+    @property
+    def protected_relative_path(self):
+        return self.file.name  
 
 class PatientFolder(models.Model):
     name = models.CharField(max_length=255)

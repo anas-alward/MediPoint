@@ -4,6 +4,7 @@ from apps.doctors.models import Doctor
 from apps.core.models import AuditableModel
 from apps.patients.models import Patient
 from django.contrib.auth import get_user_model
+
 User = get_user_model()
 
 class Review(AuditableModel):

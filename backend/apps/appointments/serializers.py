@@ -30,13 +30,13 @@ class PaymentSerializer(serializers.ModelSerializer):
 class AppointmentSerializer(serializers.ModelSerializer):
     datetime = serializers.SerializerMethodField()
     # use source='payment' but allow null=True
-    shared_folders = PatientFolderSharedSerializer()
     payment = serializers.SerializerMethodField()
-
+    shared_folders = PatientFolderSharedSerializer(many=True, required=False)
     class Meta:
         model = Appointment
         fields = [
             "id",
+            "shared_folders",
             "patient",
             "datetime",
             "doctor",

@@ -49,11 +49,7 @@ class PatientFileSerializer(serializers.ModelSerializer):
 
 
 class PatientFolderSharedSerializer(serializers.ModelSerializer):
-    folder = serializers.PrimaryKeyRelatedField(
-        source="folder",
-        queryset=PatientFolder.objects.all(),
-        write_only=True,
-    )
+    folder = PatientFolderSerializer(many=False)
 
     class Meta:
         model = PatientSharedFolder
@@ -85,7 +81,7 @@ class PatientFolderSharedBulkCreateSerializer(serializers.Serializer):
     sharing_type = serializers.ChoiceField(
         choices=PatientSharedFolder.SharingType.choices
     )
-    doctor_id = serializers.IntegerField(required=False)
+    doctor_id = serializers.UUIDField(required=False) 
     appointment_id = serializers.IntegerField(required=False)
 
     def validate(self, attrs):
@@ -122,7 +118,7 @@ class PatientFolderSharedBulkCreateSerializer(serializers.Serializer):
                     appointment_id=validated.get("appointment_id")
                 )
             )
-        return PatientSharedFolder.objects.bulk_create(shared_objects, ignore_conflicts=True)
+        return PatientSharedFolder.objects.bulk_create(shared_objects)
 
 
 class PatientFolderSharedBulkRemoveSerializer(serializers.Serializer):

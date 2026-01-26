@@ -65,7 +65,7 @@ def stripe_webhook(request):
 
             appointment.status = Appointment.Status.PAID
             appointment.payment_id = intent["id"]  # Store PaymentIntent ID
-            appointment.save(update_fields=["status", "payment_id"])
+            appointment.save(update_fields=["status"])
 
             send_email_template.delay(
                 "Payment Notification to Doctor",

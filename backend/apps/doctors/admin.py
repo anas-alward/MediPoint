@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import path, reverse
 from django.utils.html import format_html
+from apps.reviews.models import Review
 
 from apps.users.tasks import send_email_template
 from .models import Doctor, Specialty, Schedule, WorkingHours, PatientReport
@@ -23,6 +24,15 @@ class ScheduleInline(admin.TabularInline):
     min_num = 0
     max_num = 10
     extra = 0
+
+class WorkingHoursInline(admin.TabularInline):
+    """Tabular Inline View for WorkingHours"""
+
+    model = WorkingHours
+    min_num = 0
+    max_num = 10
+    extra = 0
+
 
 
 @admin.register(Schedule)
@@ -84,13 +94,26 @@ def verify_doctors(modeladmin, request, queryset):
     messages.success(request, f"{updated_count} doctor(s) have been verified.")
 
 
+
+## inline admin and main admin for Doctor model for views
+
+
+
+class ReviewInline(admin.TabularInline):
+    model = Review
+    readonly_fields = ("patient", "rating",)
+
+
+
+
+
 @admin.register(Doctor)
 class DoctorAdmin(admin.ModelAdmin):
     list_display = ["user", "fees", "experience", "is_verified", "verify_toggle_button"]
     list_filter = ["specialty"]
     search_fields = ["user__full_name", "user__email"]
     actions = [verify_doctors]
-    inlines = [ScheduleInline]
+    inlines = [WorkingHoursInline, ScheduleInline, ReviewInline]
 
     def get_urls(self):
         urls = super().get_urls()

@@ -51,3 +51,5 @@ class CommentsViewSet(ModelViewSet):
             return self.queryset.filter(review_id=review_id)
         
         return self.queryset
+
+

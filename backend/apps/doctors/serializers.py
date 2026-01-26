@@ -15,17 +15,20 @@ class WorkingHoursSerializer(serializers.ModelSerializer):
 class DoctorListSerializer(serializers.ModelSerializer):
     user = UserSerializer(many=False)
     specialty = serializers.StringRelatedField()
-
+    specialty_ar = serializers.SerializerMethodField()
     class Meta:
         model = Doctor
         fields = [
             "user",
             "specialty",
+            "specialty_ar",
             "experience",
             "fees",
             "rating",
         ]
 
+    def get_specialty_ar(self, obj):
+        return obj.specialty.name_ar if obj.specialty else None
 
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,7 +51,7 @@ class DoctorSerializer(serializers.ModelSerializer):
     working_hours = WorkingHoursSerializer(read_only=True, many=True)
     user = UserSerializer(many=False)
     reviews = ReviewSerializer(many=True)
-
+    specialty_ar = serializers.SerializerMethodField()
     class Meta:
         model = Doctor
         fields = [
@@ -59,6 +62,7 @@ class DoctorSerializer(serializers.ModelSerializer):
             "user",
             "experience",
             "education",
+            "specialty_ar",
             "specialty",
             "about",
             "address_line1",
@@ -90,6 +94,9 @@ class DoctorSerializer(serializers.ModelSerializer):
             self.fields["working_hours"] = WorkingHoursSerializer(
                 read_only=True, many=True
             )
+
+    def get_specialty_ar(self, obj):
+        return obj.specialty.name_ar if obj.specialty else None
 
     def update(self, instance, validated_data):
         # Handle nested user updates

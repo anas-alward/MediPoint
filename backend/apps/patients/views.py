@@ -31,7 +31,7 @@ class PatientViewSet(viewsets.ModelViewSet):
 
 
 class PatientFolderViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, IsPatient, IsPatientOwnerOfFolderOrFile]
+    permission_classes = [IsAuthenticated, IsPatientOwnerOfFolderOrFile]
     queryset = PatientFolder.objects.all().select_related("patient")
     serializer_class = PatientFolderSerializer
     http_method_names = ["get", "post", "put", "patch", "delete"]
@@ -72,7 +72,7 @@ class PatientFolderViewSet(viewsets.ModelViewSet):
 class PatientFileViewSet(viewsets.ModelViewSet):
     queryset = PatientFile.objects.all().select_related("folder")
     serializer_class = PatientFileSerializer
-    permission_classes = [IsAuthenticated, IsPatient, IsPatientOwnerOfFolderOrFile]
+    permission_classes = [IsAuthenticated, IsPatientOwnerOfFolderOrFile]
 
     def get_queryset(self):
         folder_id = self.kwargs.get("folder_pk")
@@ -148,6 +148,9 @@ class PatientFolderSharedBulkView(APIView):
         )
         serializer.is_valid(raise_exception=True)
         created = serializer.create()
+        print("createddddddddddddddddddddddddddddddddddddddddddd:", created)
+        print("createddddddddddddddddddddddddddddddddddddddddddd:", created[0].id)
+
         return Response(
             {"created_ids": [obj.id for obj in created]}, status=status.HTTP_201_CREATED
         )
@@ -161,3 +164,29 @@ class PatientFolderSharedBulkView(APIView):
         return Response(
             {"deleted_count": deleted_count}, status=status.HTTP_204_NO_CONTENT
         )
+class ProtectedMediasView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id):
+        patient_file = get_object_or_404(
+            PatientFile.objects.select_related("folder__patient"),
+            id=id
+        )
+
+        if (
+            not hasattr(request.user, "patient")
+            or patient_file.folder.patient_id != request.user.patient_id
+        ):
+            return Response(status=403)
+
+        response = HttpResponse()
+        response["X-Accel-Redirect"] = (
+            f"/_protected_media/{patient_file.protected_relative_path}"
+        )
+        response["Content-Type"] = ""
+        response["Content-Disposition"] = (
+            f'inline; filename="{os.path.basename(patient_file.file.name)}"'
+        )
+
+        return response
+
