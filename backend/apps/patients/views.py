@@ -1,6 +1,7 @@
 from django.http import FileResponse, HttpResponse, Http404
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 import os
 
 from rest_framework import viewsets
@@ -8,6 +9,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
+from django_filters.rest_framework import DjangoFilterBackend
 from .permissions import IsPatient, IsPatientOwnerOfFolderOrFile
 from .models import Patient, PatientFolder, PatientFile, PatientSharedFolder
 from .serializers import (
@@ -132,11 +135,36 @@ class ProtectedMediaView(APIView):
             return response
 
 
-# class PatientFolderSharedViewSet(viewsets.ModelViewSet):
-#     queryset = PatientSharedFolder.objects.select_related("folder").prefetch_related(
-#         "folder__files"
-#     )
-#     serializer_class = PatientFolderSharedSerializer
+class PatientFolderSharedViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PatientFolderSharedSerializer
+    queryset = PatientSharedFolder.objects.select_related(
+        "folder",
+        "folder__patient",
+        "doctor",
+        "appointment",
+    ).prefetch_related("folder__files")
+    http_method_names = ["get", "head", "options"]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["sharing_type"]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if not user.is_doctor:
+            raise PermissionDenied("Only doctors can access shared folders.")
+
+        doctor = getattr(user, "doctor", None)
+        if doctor is None:
+            return self.queryset.none()
+
+        return self.queryset.filter(
+            Q(sharing_type=PatientSharedFolder.SharingType.DOCTOR, doctor=doctor)
+            | Q(
+                sharing_type=PatientSharedFolder.SharingType.APPOINTMENT,
+                appointment__doctor=doctor,
+            )
+        )
 
 
 class PatientFolderSharedBulkView(APIView):
@@ -164,6 +192,9 @@ class PatientFolderSharedBulkView(APIView):
         return Response(
             {"deleted_count": deleted_count}, status=status.HTTP_204_NO_CONTENT
         )
+        
+        
+        
 class ProtectedMediasView(APIView):
     permission_classes = [IsAuthenticated]
 
